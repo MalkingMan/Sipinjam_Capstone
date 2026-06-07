@@ -1,0 +1,6 @@
+{
+  "name": "SIPINJAM",
+  "description": "Sistem Peminjaman Barang Inventaris untuk SMA Negeri 1 Sentolo di Yogyakarta",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
