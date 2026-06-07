@@ -32,7 +32,7 @@ export default function PeminjamanSaya({ currentUser, onSelectPeminjaman, onNavi
     <div id="peminjaman_saya_view" className="p-4 md:p-6 max-w-5xl mx-auto space-y-6 font-sans">
       
       {/* Title */}
-      <div className="flex justify-between items-center flex-wrap gap-2 pb-4 border-b-2 border-slate-900">
+      <div className="flex justify-between items-center flex-wrap gap-4 pb-4 border-b-2 border-slate-900">
         <div>
           <h2 className="text-xl font-black text-[#1E3A8A] flex items-center gap-2 leading-none">
             <ClipboardList className="w-5 h-5 text-[#1E3A8A] stroke-[2.5]" />
@@ -42,6 +42,12 @@ export default function PeminjamanSaya({ currentUser, onSelectPeminjaman, onNavi
             Pantau status verifikasi, catat pengembalian, dan lihat pesan dari Tata Usaha.
           </p>
         </div>
+        <button
+          onClick={() => onNavigate('cetak_template')}
+          className="bg-white border-2 border-slate-900 hover:bg-slate-50 text-slate-800 text-[10px] uppercase font-black px-4 py-2 rounded-lg shadow-sm transition-all"
+        >
+          Cetak Template Surat Blanko
+        </button>
       </div>
 
       {/* Tabs Filter Bar */}

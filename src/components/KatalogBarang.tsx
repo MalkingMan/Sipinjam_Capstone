@@ -4,23 +4,84 @@
  */
 
 import React, { useState } from 'react';
-import { Barang, Kategori, Peminjaman } from '../types';
+import { Barang, Kategori, DetailPeminjaman } from '../types';
 import { getBarang, getKategori, getPeminjaman } from '../data/db';
-import { Search, Info, MapPin, CheckCircle, XCircle, Grid, Filter, CalendarCheck, HelpCircle, ArrowLeft } from 'lucide-react';
+import { Search, Info, MapPin, CheckCircle, XCircle, Grid, Filter, CalendarCheck, HelpCircle, ArrowLeft, Plus, Minus } from 'lucide-react';
 
 interface KatalogBarangProps {
-  onStartBorrow: (barangId: string) => void;
+  daftarPinjam?: DetailPeminjaman[];
+  onStartBorrow?: (barangId: string) => void;
+  onAddDaftarPinjam?: (barangId: string, jumlah: number) => void;
   isAdminPreview?: boolean;
 }
 
-export default function KatalogBarang({ onStartBorrow, isAdminPreview = false }: KatalogBarangProps) {
+export default function KatalogBarang({ daftarPinjam = [], onStartBorrow, onAddDaftarPinjam, isAdminPreview = false }: KatalogBarangProps) {
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedKategori, setSelectedKategori] = useState('semua');
   const [selectedBarangDetail, setSelectedBarangDetail] = useState<Barang | null>(null);
+  
+  // Track temporary local quantity selection before adding to daftar
+  const [qtySelection, setQtySelection] = useState<Record<string, number>>({});
+  
+  // Edge case dialog state
+  const [conflictDialog, setConflictDialog] = useState<{barang: Barang, qty: number, existingQty: number} | null>(null);
 
   const barangList = getBarang();
   const kategoriList = getKategori();
   const allLoans = getPeminjaman();
+
+  const handleUpdateQty = (barangId: string, increment: number, max: number) => {
+    setQtySelection(prev => {
+      const current = prev[barangId] || 1;
+      const next = Math.max(1, Math.min(max, current + increment));
+      return { ...prev, [barangId]: next };
+    });
+  };
+
+  const showToast = (message: string) => {
+    // Standard mini toast alert
+    const toast = document.createElement('div');
+    toast.className = 'fixed bottom-4 left-1/2 transform -translate-x-1/2 bg-slate-900 text-white px-4 py-2 rounded-lg shadow-xl text-xs font-bold z-50 animate-fade-in';
+    toast.textContent = message;
+    document.body.appendChild(toast);
+    setTimeout(() => {
+      toast.remove();
+    }, 2000);
+  };
+
+  const handleAddSubmit = (barang: Barang) => {
+    const qty = qtySelection[barang.id] || 1;
+    
+    // check if exist
+    const existing = daftarPinjam.find(p => p.barang_id === barang.id);
+    if (existing) {
+      setConflictDialog({ barang, qty, existingQty: existing.jumlah });
+      return;
+    }
+    
+    if (onAddDaftarPinjam) {
+      onAddDaftarPinjam(barang.id, qty);
+      showToast(`${barang.nama} ×${qty} ditambahkan ke Daftar`);
+      setQtySelection(prev => ({ ...prev, [barang.id]: 1 }));
+    }
+  };
+
+  const handleResolveConflict = (mode: 'replace' | 'add') => {
+    if (!conflictDialog || !onAddDaftarPinjam) return;
+    
+    const { barang, qty, existingQty } = conflictDialog;
+    
+    if (mode === 'replace') {
+      onAddDaftarPinjam(barang.id, qty);
+      showToast(`${barang.nama} diubah jumlahnya menjadi ×${qty}`);
+    } else {
+      const finalQty = Math.min(barang.stok, existingQty + qty);
+      onAddDaftarPinjam(barang.id, finalQty);
+      showToast(`${barang.nama} ditambahkan menjadi ×${finalQty}`);
+    }
+    setQtySelection(prev => ({ ...prev, [barang.id]: 1 }));
+    setConflictDialog(null);
+  };
 
   // Filter logic
   const filteredBarangList = barangList.filter((b) => {
@@ -204,25 +265,44 @@ export default function KatalogBarang({ onStartBorrow, isAdminPreview = false }:
               <div className="pt-4 border-t border-slate-100 flex gap-3">
                 <button
                   onClick={() => setSelectedBarangDetail(null)}
-                  className="flex-1 border border-slate-200 bg-white hover:bg-slate-50 text-slate-700 text-xs font-semibold py-3 rounded-lg active:scale-95 transition-all text-center cursor-pointer"
+                  className="px-6 border border-slate-200 bg-white hover:bg-slate-50 text-slate-700 text-xs font-semibold py-3 rounded-lg active:scale-95 transition-all text-center cursor-pointer"
                 >
                   Kembali
                 </button>
                 {!isAdminPreview && (
-                  <button
-                    onClick={() => {
-                      if (selectedBarangDetail.stok_tersedia > 0) {
-                        onStartBorrow(selectedBarangDetail.id);
-                        setSelectedBarangDetail(null);
-                      } else {
-                        alert('Stok barang ini sedang habis. Silakan periksa kalender ketersediaan untuk memperkirakan kapan barang dikembalikan oleh peminjam sebelumnya.');
-                      }
-                    }}
-                    disabled={selectedBarangDetail.stok_tersedia <= 0}
-                    className="flex-1 bg-[#1E3A8A] hover:bg-[#1E3A8A]/90 text-white text-xs font-semibold py-3 rounded-lg active:scale-95 transition-all disabled:opacity-40 disabled:cursor-not-allowed shadow cursor-pointer text-center"
-                  >
-                    Pinjam Sekarang
-                  </button>
+                  <div className="flex flex-1 items-center gap-2">
+                    <div className="flex items-center gap-1 bg-slate-50 border-2 border-slate-900 rounded p-1">
+                      <button
+                        onClick={() => handleUpdateQty(selectedBarangDetail.id, -1, selectedBarangDetail.stok)}
+                        disabled={selectedBarangDetail.stok_tersedia <= 0}
+                        className="p-1.5 hover:bg-slate-200 rounded disabled:opacity-50 text-slate-700"
+                      >
+                        <Minus className="w-4 h-4" />
+                      </button>
+                      <span className="text-xs font-black w-6 text-center">{qtySelection[selectedBarangDetail.id] || 1}</span>
+                      <button
+                        onClick={() => handleUpdateQty(selectedBarangDetail.id, 1, selectedBarangDetail.stok)}
+                        disabled={selectedBarangDetail.stok_tersedia <= 0}
+                        className="p-1.5 hover:bg-slate-200 rounded disabled:opacity-50 text-[#1E3A8A]"
+                      >
+                        <Plus className="w-4 h-4 text-[1E3A8A]" />
+                      </button>
+                    </div>
+                    <button
+                      onClick={() => {
+                        if (selectedBarangDetail.stok_tersedia > 0) {
+                          handleAddSubmit(selectedBarangDetail);
+                          setSelectedBarangDetail(null);
+                        } else {
+                          alert('Stok barang ini sedang habis. Silakan periksa kalender ketersediaan untuk memperkirakan kapan barang dikembalikan oleh peminjam sebelumnya.');
+                        }
+                      }}
+                      disabled={selectedBarangDetail.stok_tersedia <= 0}
+                      className="flex-1 bg-[#1E3A8A] hover:bg-slate-900 border-2 border-slate-950 text-white text-xs font-black tracking-wider py-3 rounded-lg active:scale-95 transition-all disabled:opacity-40 disabled:cursor-not-allowed shadow cursor-pointer text-center"
+                    >
+                      + TAMBAH KE DAFTAR
+                    </button>
+                  </div>
                 )}
               </div>
             </div>
@@ -352,23 +432,46 @@ export default function KatalogBarang({ onStartBorrow, isAdminPreview = false }:
                     </div>
 
                     {/* Bottom control links */}
-                    <div className="px-3.5 pb-3.5 pt-2 flex items-center justify-between gap-2.5 border-t border-slate-200">
-                      <button
-                        onClick={() => setSelectedBarangDetail(barang)}
-                        className="text-[10px] font-black tracking-wider text-[#1E3A8A] hover:underline"
-                        title="Lihat Detail, Spesifikasi, & Kalender Reservasi"
-                      >
-                        Info & Jadwal &rarr;
-                      </button>
+                    <div className="px-3.5 pb-3.5 pt-2 flex flex-col gap-2.5 border-t border-slate-200">
+                      
+                      <div className="flex justify-between items-center w-full">
+                        <button
+                          onClick={() => setSelectedBarangDetail(barang)}
+                          className="text-[10px] font-black tracking-wider text-[#1E3A8A] hover:underline"
+                          title="Lihat Detail, Spesifikasi, & Kalender Reservasi"
+                        >
+                          Info & Jadwal &rarr;
+                        </button>
+                      </div>
 
                       {!isAdminPreview && (
-                        <button
-                          onClick={() => onStartBorrow(barang.id)}
-                          disabled={!isAvailable}
-                          className="bg-[#1E3A8A] hover:bg-slate-900 text-white border border-slate-950 text-[10px] font-black tracking-wider px-3 py-1.5 rounded transition-all cursor-pointer select-none active:scale-95 disabled:bg-slate-100 disabled:text-slate-400 disabled:cursor-not-allowed disabled:border-slate-200"
-                        >
-                          Pinjam
-                        </button>
+                        <div className="flex items-center gap-2">
+                          <div className="flex items-center gap-1 bg-slate-50 border-2 border-slate-900 rounded p-0.5">
+                            <button
+                              onClick={() => handleUpdateQty(barang.id, -1, barang.stok)}
+                              disabled={!isAvailable}
+                              className="p-1 hover:bg-slate-200 rounded disabled:opacity-50 text-slate-700"
+                            >
+                              <Minus className="w-3 h-3" />
+                            </button>
+                            <span className="text-[10px] font-black w-3 text-center">{qtySelection[barang.id] || 1}</span>
+                            <button
+                              onClick={() => handleUpdateQty(barang.id, 1, barang.stok)}
+                              disabled={!isAvailable}
+                              className="p-1 hover:bg-slate-200 rounded disabled:opacity-50 text-[#1E3A8A]"
+                            >
+                              <Plus className="w-3 h-3 text-[1E3A8A]" />
+                            </button>
+                          </div>
+                          
+                          <button
+                            onClick={() => handleAddSubmit(barang)}
+                            disabled={!isAvailable}
+                            className="flex-1 bg-[#1E3A8A] hover:bg-slate-900 text-white border-2 border-slate-950 text-[10px] font-black tracking-wider px-3 py-1.5 rounded transition-all cursor-pointer select-none active:scale-95 disabled:bg-slate-200 disabled:text-slate-400 disabled:cursor-not-allowed disabled:border-slate-300"
+                          >
+                            + TAMBAH KE DAFTAR
+                          </button>
+                        </div>
                       )}
                     </div>
 
@@ -378,6 +481,38 @@ export default function KatalogBarang({ onStartBorrow, isAdminPreview = false }:
             </div>
           )}
         </>
+      )}
+
+      {/* Conflict Dialog Edge Case */}
+      {conflictDialog && (
+        <div className="fixed inset-0 z-[60] flex items-center justify-center p-4 bg-slate-900/40 backdrop-blur-sm animate-fade-in">
+          <div className="bg-white rounded-xl shadow-2xl p-6 w-full max-w-sm border-2 border-slate-900">
+            <h3 className="text-lg font-black text-[#1E3A8A] mb-2 leading-tight">Barang Sudah Ada di Daftar</h3>
+            <p className="text-sm text-slate-600 mb-6 tracking-wide leading-relaxed font-semibold">
+              Anda sudah menambahkan <span className="font-extrabold text-slate-900">{conflictDialog.barang.nama} (×{conflictDialog.existingQty})</span>. Anda ingin menambahkan lagi, atau mengubah jumlahnya menjadi ×{conflictDialog.qty}?
+            </p>
+            <div className="flex flex-col gap-3">
+              <button
+                onClick={() => handleResolveConflict('add')}
+                className="w-full bg-[#1E3A8A] border-2 border-slate-950 text-white py-2.5 rounded-lg text-xs font-black shadow hover:bg-slate-900 active:scale-95 transition-all"
+              >
+                + Tambah Lagi (Total ×{Math.min(conflictDialog.barang.stok, conflictDialog.existingQty + conflictDialog.qty)})
+              </button>
+              <button
+                onClick={() => handleResolveConflict('replace')}
+                className="w-full border-2 border-slate-900 text-slate-900 py-2.5 rounded-lg text-xs font-black hover:bg-slate-50 transition-all"
+              >
+                Ubah Jumlah menjadi ×{conflictDialog.qty}
+              </button>
+              <button
+                onClick={() => setConflictDialog(null)}
+                className="w-full text-slate-500 py-2 rounded-lg text-[10px] uppercase tracking-wider font-bold hover:text-slate-800 transition-all"
+              >
+                Batalkan
+              </button>
+            </div>
+          </div>
+        </div>
       )}
 
     </div>

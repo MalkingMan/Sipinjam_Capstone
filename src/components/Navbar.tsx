@@ -4,16 +4,18 @@
  */
 
 import { User, UserRole } from '../types';
-import { ShieldCheck, LogOut, LayoutDashboard, Boxes, ClipboardList, Info, Users, Database } from 'lucide-react';
+import { ShieldCheck, LogOut, LayoutDashboard, Boxes, ClipboardList, Info, Users, Database, ShoppingBag } from 'lucide-react';
 
 interface NavbarProps {
   currentUser: User;
   activeTab: string;
   setActiveTab: (tab: string) => void;
   onLogout: () => void;
+  daftarPinjamCount?: number;
+  onOpenDaftarPinjam?: () => void;
 }
 
-export default function Navbar({ currentUser, activeTab, setActiveTab, onLogout }: NavbarProps) {
+export default function Navbar({ currentUser, activeTab, setActiveTab, onLogout, daftarPinjamCount = 0, onOpenDaftarPinjam }: NavbarProps) {
   const getRoleBadge = (role: UserRole) => {
     switch (role) {
       case 'admin':
@@ -134,6 +136,20 @@ export default function Navbar({ currentUser, activeTab, setActiveTab, onLogout 
 
           {/* User Bio and Logout Action */}
           <div className="flex items-center gap-4">
+            {(currentUser.role === 'siswa' || currentUser.role === 'guru') && (
+              <button
+                onClick={onOpenDaftarPinjam}
+                className="relative p-2 rounded-lg text-white hover:bg-white/10 transition-colors flex items-center justify-center mr-1"
+                title="Lihat Daftar Pinjam"
+              >
+                <ShoppingBag className="w-5 h-5" />
+                {daftarPinjamCount > 0 && (
+                  <span className="absolute top-1 right-0 bg-red-500 text-white text-[10px] items-center justify-center flex font-bold px-1.5 py-0.5 min-w-[18px] rounded-full leading-none transform translate-x-1/4 -translate-y-1/4">
+                    {daftarPinjamCount}
+                  </span>
+                )}
+              </button>
+            )}
             <div className="text-right hidden sm:block">
               <p className="text-xs font-bold leading-none">{currentUser.nama}</p>
               <div className="flex items-center gap-1.5 justify-end mt-1">

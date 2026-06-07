@@ -73,6 +73,20 @@ export function savePengaturanSurat(pengaturan: PengaturanSurat) {
   localStorage.setItem('sipinjam_pengaturan_surat', JSON.stringify(pengaturan));
 }
 
+export function getDaftarPinjam(): DetailPeminjaman[] {
+  const data = localStorage.getItem('sipinjam_daftar_pinjam');
+  if (data) return JSON.parse(data);
+  return [];
+}
+
+export function saveDaftarPinjam(items: DetailPeminjaman[]) {
+  localStorage.setItem('sipinjam_daftar_pinjam', JSON.stringify(items));
+}
+
+export function clearDaftarPinjam() {
+  localStorage.removeItem('sipinjam_daftar_pinjam');
+}
+
 // Simulated active session
 export function getCurrentUser(): User | null {
   const data = localStorage.getItem('sipinjam_current_user');

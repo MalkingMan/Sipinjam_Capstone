@@ -4,8 +4,8 @@
  */
 
 import { useState, useEffect } from "react";
-import { User, Peminjaman } from "./types";
-import { getCurrentUser, setCurrentUser, getPeminjaman } from "./data/db";
+import { User, Peminjaman, DetailPeminjaman } from "./types";
+import { getCurrentUser, setCurrentUser, getPeminjaman, getDaftarPinjam, saveDaftarPinjam, clearDaftarPinjam } from "./data/db";
 import LoginView from "./components/LoginView";
 import Navbar from "./components/Navbar";
 import PeminjamDashboard from "./components/PeminjamDashboard";
@@ -15,20 +15,42 @@ import PeminjamanSaya from "./components/PeminjamanSaya";
 import AdminDashboard from "./components/AdminDashboard";
 import AdminInventaris from "./components/AdminInventaris";
 import AdminPengaturanSurat from "./components/AdminPengaturanSurat";
+import CetakTemplateKosongView from "./components/CetakTemplateKosongView";
 import CetakSuratView from "./components/CetakSuratView";
+import DaftarPinjamSheet from "./components/DaftarPinjamSheet";
 import { getBarang } from "./data/db";
-import { X, Calendar, ClipboardList, Info, HelpCircle } from "lucide-react";
+import { X, Calendar, ClipboardList, Info, HelpCircle, Trash2 } from "lucide-react";
 
 export default function App() {
   const [currentUser, setUser] = useState<User | null>(getCurrentUser());
   const [activeTab, setActiveTab] = useState<string>("dashboard");
-  const [preSelectedBarangId, setPreSelectedBarangId] = useState<string | null>(
-    null,
-  );
-  const [selectedPJMDetail, setSelectedPJMDetail] = useState<Peminjaman | null>(
-    null,
-  );
+  const [preSelectedBarangId, setPreSelectedBarangId] = useState<string | null>(null);
+  const [selectedPJMDetail, setSelectedPJMDetail] = useState<Peminjaman | null>(null);
   const [refreshKey, setRefreshKey] = useState<number>(0);
+  
+  // Daftar Pinjam State
+  const [daftarPinjam, setDaftarPinjam] = useState<DetailPeminjaman[]>(getDaftarPinjam());
+  const [isDaftarPinjamOpen, setIsDaftarPinjamOpen] = useState(false);
+
+  useEffect(() => {
+    saveDaftarPinjam(daftarPinjam);
+  }, [daftarPinjam]);
+
+  const handleUpdateDaftarPinjam = (barangId: string, jumlah: number) => {
+    setDaftarPinjam((prev) => {
+      const exist = prev.find((p) => p.barang_id === barangId);
+      if (exist) {
+        if (jumlah <= 0) return prev.filter((p) => p.barang_id !== barangId);
+        return prev.map((p) => p.barang_id === barangId ? { ...p, jumlah } : p);
+      }
+      if (jumlah <= 0) return prev;
+      return [...prev, { barang_id: barangId, jumlah }];
+    });
+  };
+
+  const handleRemoveFromDaftar = (barangId: string) => {
+    setDaftarPinjam((prev) => prev.filter((p) => p.barang_id !== barangId));
+  };
 
   // Sync state if user role differs
   useEffect(() => {
@@ -81,6 +103,8 @@ export default function App() {
     );
   }
 
+  const totalDaftarPinjamCount = daftarPinjam.reduce((acc, curr) => acc + curr.jumlah, 0);
+
   return (
     <div className="min-h-screen bg-slate-50 flex flex-col font-sans selection:bg-[#1E3A8A]/10 selection:text-[#1E3A8A]">
       <Navbar
@@ -88,6 +112,8 @@ export default function App() {
         activeTab={activeTab}
         setActiveTab={setActiveTab}
         onLogout={handleLogout}
+        daftarPinjamCount={totalDaftarPinjamCount}
+        onOpenDaftarPinjam={() => setIsDaftarPinjamOpen(true)}
       />
 
       <main className="flex-1 pb-16 md:pb-6">
@@ -111,7 +137,9 @@ export default function App() {
 
         {(activeTab === "katalog" || activeTab.startsWith("barang_")) && (
           <KatalogBarang
+            daftarPinjam={daftarPinjam}
             onStartBorrow={handleStartBorrow}
+            onAddDaftarPinjam={handleUpdateDaftarPinjam}
             isAdminPreview={currentUser.role === "admin"}
           />
         )}
@@ -119,14 +147,13 @@ export default function App() {
         {activeTab === "form_peminjaman" && (
           <FormPeminjaman
             currentUser={currentUser}
-            preSelectedBarangId={preSelectedBarangId}
+            daftarPinjam={daftarPinjam}
+            clearDaftarPinjam={() => setDaftarPinjam([])}
             onSuccess={() => {
-              setPreSelectedBarangId(null);
               setActiveTab("peminjaman_saya");
               triggerForceRefresh();
             }}
             onCancel={() => {
-              setPreSelectedBarangId(null);
               setActiveTab("katalog");
             }}
           />
@@ -138,6 +165,17 @@ export default function App() {
             currentUser={currentUser}
             onSelectPeminjaman={setSelectedPJMDetail}
             onNavigate={setActiveTab}
+          />
+        )}
+
+        {activeTab === "cetak_template" && (
+          <CetakTemplateKosongView onBack={() => setActiveTab("peminjaman_saya")} />
+        )}
+
+        {activeTab.startsWith("cetak_surat_") && (
+          <CetakSuratView 
+            loanId={activeTab.replace("cetak_surat_", "")}
+            onBack={() => setActiveTab("peminjaman_saya")}
           />
         )}
 
@@ -157,6 +195,14 @@ export default function App() {
       </main>
 
       {/* GLOBAL DETAILS DIALOG WINDOW FOR TRANS_BOOKINGS INFOS */}
+      <DaftarPinjamSheet 
+        isOpen={isDaftarPinjamOpen}
+        onClose={() => setIsDaftarPinjamOpen(false)}
+        items={daftarPinjam}
+        onUpdateQty={handleUpdateDaftarPinjam}
+        onProceed={() => setActiveTab("form_peminjaman")}
+      />
+
       {selectedPJMDetail && (
         <div className="fixed inset-0 bg-slate-900/60 backdrop-blur-xs flex items-center justify-center p-4 z-50">
           <div className="bg-white rounded-xl border-2 border-slate-900 w-full max-w-md overflow-hidden flex flex-col shadow-2xl animate-scale-up">

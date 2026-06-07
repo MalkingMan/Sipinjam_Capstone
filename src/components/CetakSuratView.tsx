@@ -201,10 +201,28 @@ export default function CetakSuratView({
             </tr>
           </thead>
           <tbody>
-            {Array.from({ length: 10 }).map((_, idx) => (
-              <tr key={idx}>
+            {loan.items && loan.items.map((item, idx) => {
+              const matchedProp = allBarang.find((b) => b.id === item.barang_id);
+              return (
+                <tr key={`item-${idx}`}>
+                  <td className="border border-[#1a1a1a] p-1.5 text-center h-8">
+                    {idx + 1}
+                  </td>
+                  <td className="border border-[#1a1a1a] p-1.5 h-8">
+                    {matchedProp ? matchedProp.nama : "Unknown"}
+                  </td>
+                  <td className="border border-[#1a1a1a] p-1.5 text-center h-8">
+                    {item.jumlah} unit
+                  </td>
+                </tr>
+              );
+            })}
+            
+            {/* Blank rows up to min 5 rows if items are fewer */}
+            {Array.from({ length: Math.max(0, 5 - (loan.items?.length || 0)) }).map((_, idx) => (
+              <tr key={`empty-${idx}`}>
                 <td className="border border-[#1a1a1a] p-1.5 text-center h-8">
-                  {idx + 1}
+                  {(loan.items?.length || 0) + idx + 1}
                 </td>
                 <td className="border border-[#1a1a1a] p-1.5 h-8"></td>
                 <td className="border border-[#1a1a1a] p-1.5 text-center h-8"></td>
