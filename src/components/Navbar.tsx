@@ -4,7 +4,7 @@
  */
 
 import { User, UserRole } from '../types';
-import { ShieldCheck, LogOut, LayoutDashboard, Boxes, ClipboardList, Info, Users, Database, ShoppingBag } from 'lucide-react';
+import { ShieldCheck, LogOut, LayoutDashboard, Boxes, ClipboardList, Info, Database, ShoppingBag } from 'lucide-react';
 
 interface NavbarProps {
   currentUser: User;
@@ -19,41 +19,39 @@ export default function Navbar({ currentUser, activeTab, setActiveTab, onLogout,
   const getRoleBadge = (role: UserRole) => {
     switch (role) {
       case 'admin':
-        return <span className="bg-purple-100 text-purple-800 text-[10px] uppercase font-bold px-2 py-0.5 rounded-full">Admin TU</span>;
+        return <span className="bg-gray-700 text-gray-300 text-[10px] font-medium px-2 py-0.5 rounded-full">Admin TU</span>;
       case 'guru':
-        return <span className="bg-[#CCFBF1] text-[#0F766E] text-[10px] uppercase font-bold px-2 py-0.5 rounded-full">Guru</span>;
+        return <span className="bg-gray-700 text-gray-300 text-[10px] font-medium px-2 py-0.5 rounded-full">Guru</span>;
       default:
-        return <span className="bg-blue-100 text-[#1E3A8A] text-[10px] uppercase font-bold px-2 py-0.5 rounded-full">Siswa / OSIS</span>;
+        return <span className="bg-gray-700 text-gray-300 text-[10px] font-medium px-2 py-0.5 rounded-full">Siswa</span>;
     }
   };
 
   return (
-    <nav className="bg-[#1E3A8A] text-white shadow-md sticky top-0 z-50 font-sans">
+    <nav className="bg-[#1F2937] text-white shadow-md sticky top-0 z-50 font-sans">
       <div className="max-w-7xl mx-auto px-4">
-        <div className="flex justify-between items-center h-16">
-          
-          {/* Brand Logo and Title */}
+        <div className="flex justify-between items-center h-14">
+
+          {/* Brand */}
           <div className="flex items-center gap-2.5 cursor-pointer" onClick={() => setActiveTab('dashboard')}>
-            <div className="w-9 h-9 bg-white text-[#1E3A8A] flex items-center justify-center rounded-lg shadow-sm">
-              <ShieldCheck className="w-6 h-6" />
+            <div className="w-8 h-8 bg-white/10 flex items-center justify-center rounded-lg">
+              <ShieldCheck className="w-5 h-5 text-white" />
             </div>
             <div>
-              <span className="font-bold text-lg tracking-wider block leading-none">SIPINJAM</span>
-              <span className="text-[9px] text-[#CCD9FF] font-medium leading-none block mt-0.5">SMAN 1 Sentolo</span>
+              <span className="font-semibold text-base text-white block leading-none">SIPINJAM</span>
+              <span className="text-[10px] text-gray-400 leading-none block mt-0.5">SMAN 1 Sentolo</span>
             </div>
           </div>
 
-          {/* Navigation Links - Desktop and Tablet */}
-          <div className="hidden md:flex items-center gap-1">
-            
-            {/* Siswa & Guru General Sections */}
+          {/* Desktop Nav */}
+          <div className="hidden md:flex items-center gap-0.5">
             {(currentUser.role === 'siswa' || currentUser.role === 'guru') && (
               <>
                 <button
                   type="button"
                   onClick={() => setActiveTab('dashboard')}
-                  className={`flex items-center gap-1.5 px-3.5 py-2 rounded-lg text-sm font-semibold transition-colors cursor-pointer ${
-                    activeTab === 'dashboard' ? 'bg-white/15 text-white' : 'text-slate-200 hover:bg-white/5 hover:text-white'
+                  className={`flex items-center gap-1.5 px-3 py-1.5 rounded-md text-sm transition-colors cursor-pointer ${
+                    activeTab === 'dashboard' ? 'bg-gray-700 text-white' : 'text-gray-400 hover:bg-gray-700/50 hover:text-gray-200'
                   }`}
                 >
                   <LayoutDashboard className="w-4 h-4" />
@@ -63,8 +61,8 @@ export default function Navbar({ currentUser, activeTab, setActiveTab, onLogout,
                 <button
                   type="button"
                   onClick={() => setActiveTab('katalog')}
-                  className={`flex items-center gap-1.5 px-3.5 py-2 rounded-lg text-sm font-semibold transition-colors cursor-pointer ${
-                    activeTab === 'katalog' || activeTab.startsWith('barang_') ? 'bg-white/15 text-white' : 'text-slate-200 hover:bg-white/5 hover:text-white'
+                  className={`flex items-center gap-1.5 px-3 py-1.5 rounded-md text-sm transition-colors cursor-pointer ${
+                    activeTab === 'katalog' || activeTab.startsWith('barang_') ? 'bg-gray-700 text-white' : 'text-gray-400 hover:bg-gray-700/50 hover:text-gray-200'
                   }`}
                 >
                   <Boxes className="w-4 h-4" />
@@ -74,8 +72,8 @@ export default function Navbar({ currentUser, activeTab, setActiveTab, onLogout,
                 <button
                   type="button"
                   onClick={() => setActiveTab('peminjaman_saya')}
-                  className={`flex items-center gap-1.5 px-3.5 py-2 rounded-lg text-sm font-semibold transition-colors cursor-pointer ${
-                    activeTab === 'peminjaman_saya' ? 'bg-white/15 text-white' : 'text-slate-200 hover:bg-white/5 hover:text-white'
+                  className={`flex items-center gap-1.5 px-3 py-1.5 rounded-md text-sm transition-colors cursor-pointer ${
+                    activeTab === 'peminjaman_saya' ? 'bg-gray-700 text-white' : 'text-gray-400 hover:bg-gray-700/50 hover:text-gray-200'
                   }`}
                 >
                   <ClipboardList className="w-4 h-4" />
@@ -84,14 +82,13 @@ export default function Navbar({ currentUser, activeTab, setActiveTab, onLogout,
               </>
             )}
 
-            {/* Admin Specific Sections */}
             {currentUser.role === 'admin' && (
               <>
                 <button
                   type="button"
                   onClick={() => setActiveTab('dashboard')}
-                  className={`flex items-center gap-1.5 px-3.5 py-2 rounded-lg text-sm font-semibold transition-colors cursor-pointer ${
-                    activeTab === 'dashboard' ? 'bg-white/15 text-white' : 'text-slate-200 hover:bg-white/5 hover:text-white'
+                  className={`flex items-center gap-1.5 px-3 py-1.5 rounded-md text-sm transition-colors cursor-pointer ${
+                    activeTab === 'dashboard' ? 'bg-gray-700 text-white' : 'text-gray-400 hover:bg-gray-700/50 hover:text-gray-200'
                   }`}
                 >
                   <LayoutDashboard className="w-4 h-4" />
@@ -101,8 +98,8 @@ export default function Navbar({ currentUser, activeTab, setActiveTab, onLogout,
                 <button
                   type="button"
                   onClick={() => setActiveTab('katalog')}
-                  className={`flex items-center gap-1.5 px-3.5 py-2 rounded-lg text-sm font-semibold transition-colors cursor-pointer ${
-                    activeTab === 'katalog' ? 'bg-white/15 text-white' : 'text-slate-200 hover:bg-white/5 hover:text-white'
+                  className={`flex items-center gap-1.5 px-3 py-1.5 rounded-md text-sm transition-colors cursor-pointer ${
+                    activeTab === 'katalog' ? 'bg-gray-700 text-white' : 'text-gray-400 hover:bg-gray-700/50 hover:text-gray-200'
                   }`}
                 >
                   <Boxes className="w-4 h-4" />
@@ -112,8 +109,8 @@ export default function Navbar({ currentUser, activeTab, setActiveTab, onLogout,
                 <button
                   type="button"
                   onClick={() => setActiveTab('admin_inventaris')}
-                  className={`flex items-center gap-1.5 px-3.5 py-2 rounded-lg text-sm font-semibold transition-colors cursor-pointer ${
-                    activeTab === 'admin_inventaris' ? 'bg-white/15 text-white' : 'text-slate-200 hover:bg-white/5 hover:text-white'
+                  className={`flex items-center gap-1.5 px-3 py-1.5 rounded-md text-sm transition-colors cursor-pointer ${
+                    activeTab === 'admin_inventaris' ? 'bg-gray-700 text-white' : 'text-gray-400 hover:bg-gray-700/50 hover:text-gray-200'
                   }`}
                 >
                   <Database className="w-4 h-4" />
@@ -123,8 +120,8 @@ export default function Navbar({ currentUser, activeTab, setActiveTab, onLogout,
                 <button
                   type="button"
                   onClick={() => setActiveTab('admin_pengaturan')}
-                  className={`flex items-center gap-1.5 px-3.5 py-2 rounded-lg text-sm font-semibold transition-colors cursor-pointer ${
-                    activeTab === 'admin_pengaturan' ? 'bg-white/15 text-white' : 'text-slate-200 hover:bg-white/5 hover:text-white'
+                  className={`flex items-center gap-1.5 px-3 py-1.5 rounded-md text-sm transition-colors cursor-pointer ${
+                    activeTab === 'admin_pengaturan' ? 'bg-gray-700 text-white' : 'text-gray-400 hover:bg-gray-700/50 hover:text-gray-200'
                   }`}
                 >
                   <Info className="w-4 h-4" />
@@ -134,77 +131,73 @@ export default function Navbar({ currentUser, activeTab, setActiveTab, onLogout,
             )}
           </div>
 
-          {/* User Bio and Logout Action */}
-          <div className="flex items-center gap-4">
+          {/* Right: User info + actions */}
+          <div className="flex items-center gap-3">
             {(currentUser.role === 'siswa' || currentUser.role === 'guru') && (
               <button
                 onClick={onOpenDaftarPinjam}
-                className="relative p-2 rounded-lg text-white hover:bg-white/10 transition-colors flex items-center justify-center mr-1"
+                className="relative p-2 rounded-md text-gray-300 hover:bg-gray-700/50 hover:text-white transition-colors"
                 title="Lihat Daftar Pinjam"
               >
                 <ShoppingBag className="w-5 h-5" />
                 {daftarPinjamCount > 0 && (
-                  <span className="absolute top-1 right-0 bg-red-500 text-white text-[10px] items-center justify-center flex font-bold px-1.5 py-0.5 min-w-[18px] rounded-full leading-none transform translate-x-1/4 -translate-y-1/4">
+                  <span className="absolute top-0.5 right-0 bg-red-500 text-white text-[9px] font-medium px-1 min-w-[16px] h-4 flex items-center justify-center rounded-full leading-none translate-x-1/4 -translate-y-1/4">
                     {daftarPinjamCount}
                   </span>
                 )}
               </button>
             )}
+
             <div className="text-right hidden sm:block">
-              <p className="text-xs font-bold leading-none">{currentUser.nama}</p>
+              <p className="text-sm font-medium text-white leading-none">{currentUser.nama}</p>
               <div className="flex items-center gap-1.5 justify-end mt-1">
                 {getRoleBadge(currentUser.role)}
-                <span className="text-[10px] text-[#CCD9FF]">{currentUser.kelas_jabatan}</span>
               </div>
             </div>
 
-            <div className="h-8 w-px bg-white/20 hidden sm:block"></div>
+            <div className="h-6 w-px bg-gray-600 hidden sm:block"></div>
 
             <button
               onClick={onLogout}
-              className="flex items-center justify-center p-2 rounded-lg text-slate-100 hover:bg-red-700/30 hover:text-red-200 transition-colors cursor-pointer"
+              className="flex items-center justify-center p-1.5 rounded-md text-gray-400 hover:bg-red-900/30 hover:text-red-400 transition-colors cursor-pointer"
               title="Keluar dari Akun"
             >
-              <LogOut className="w-5 h-5" />
+              <LogOut className="w-4 h-4" />
             </button>
           </div>
-
         </div>
       </div>
 
-      {/* Navigation Links - Mobile Bottom Bar for native feel */}
-      <div className="md:hidden bg-[#183073] border-t border-[#1E3A8A] flex justify-around py-1">
-        
+      {/* Mobile Bottom Bar */}
+      <div className="md:hidden bg-[#1a2535] border-t border-gray-700 flex justify-around py-1">
         {(currentUser.role === 'siswa' || currentUser.role === 'guru') && (
           <>
             <button
               onClick={() => setActiveTab('dashboard')}
-              className={`flex flex-col items-center flex-1 py-1 text-[10px] font-semibold tracking-wide ${
-                activeTab === 'dashboard' ? 'text-white' : 'text-slate-300'
+              className={`flex flex-col items-center flex-1 py-1.5 text-[10px] font-medium gap-0.5 ${
+                activeTab === 'dashboard' ? 'text-white' : 'text-gray-500'
               }`}
             >
-              <LayoutDashboard className="w-4.5 h-4.5 mb-1" />
+              <LayoutDashboard className="w-4 h-4" />
               Beranda
             </button>
-
             <button
               onClick={() => setActiveTab('katalog')}
-              className={`flex flex-col items-center flex-1 py-1 text-[10px] font-semibold tracking-wide ${
-                activeTab === 'katalog' || activeTab.startsWith('barang_') ? 'text-white' : 'text-slate-300'
+              className={`flex flex-col items-center flex-1 py-1.5 text-[10px] font-medium gap-0.5 ${
+                activeTab === 'katalog' || activeTab.startsWith('barang_') ? 'text-white' : 'text-gray-500'
               }`}
             >
-              <Boxes className="w-4.5 h-4.5 mb-1" />
+              <Boxes className="w-4 h-4" />
               Katalog
             </button>
-
             <button
               onClick={() => setActiveTab('peminjaman_saya')}
-              className={`flex flex-col items-center flex-1 py-1 text-[10px] font-semibold tracking-wide ${
-                activeTab === 'peminjaman_saya' ? 'text-white' : 'text-slate-300'
+              className={`flex flex-col items-center flex-1 py-1.5 text-[10px] font-medium gap-0.5 ${
+                activeTab === 'peminjaman_saya' ? 'text-white' : 'text-gray-500'
               }`}
             >
-              <ClipboardList className="w-4.5 h-4.5 mb-1" />
-              Status Selesai
+              <ClipboardList className="w-4 h-4" />
+              Peminjaman
             </button>
           </>
         )}
@@ -213,41 +206,38 @@ export default function Navbar({ currentUser, activeTab, setActiveTab, onLogout,
           <>
             <button
               onClick={() => setActiveTab('dashboard')}
-              className={`flex flex-col items-center flex-1 py-1 text-[10px] font-semibold tracking-wide ${
-                activeTab === 'dashboard' ? 'text-white' : 'text-slate-300'
+              className={`flex flex-col items-center flex-1 py-1.5 text-[10px] font-medium gap-0.5 ${
+                activeTab === 'dashboard' ? 'text-white' : 'text-gray-500'
               }`}
             >
-              <LayoutDashboard className="w-4.5 h-4.5 mb-1" />
-              Dashboard TU
+              <LayoutDashboard className="w-4 h-4" />
+              Dashboard
             </button>
-
             <button
               onClick={() => setActiveTab('katalog')}
-              className={`flex flex-col items-center flex-1 py-1 text-[10px] font-semibold tracking-wide ${
-                activeTab === 'katalog' ? 'text-white' : 'text-slate-300'
+              className={`flex flex-col items-center flex-1 py-1.5 text-[10px] font-medium gap-0.5 ${
+                activeTab === 'katalog' ? 'text-white' : 'text-gray-500'
               }`}
             >
-              <Boxes className="w-4.5 h-4.5 mb-1" />
-              Pratinjau
+              <Boxes className="w-4 h-4" />
+              Katalog
             </button>
-
             <button
               onClick={() => setActiveTab('admin_inventaris')}
-              className={`flex flex-col items-center flex-1 py-1 text-[10px] font-semibold tracking-wide ${
-                activeTab === 'admin_inventaris' ? 'text-white' : 'text-slate-300'
+              className={`flex flex-col items-center flex-1 py-1.5 text-[10px] font-medium gap-0.5 ${
+                activeTab === 'admin_inventaris' ? 'text-white' : 'text-gray-500'
               }`}
             >
-              <Database className="w-4.5 h-4.5 mb-1" />
-              Kelola Barang
+              <Database className="w-4 h-4" />
+              Inventaris
             </button>
-
             <button
               onClick={() => setActiveTab('admin_pengaturan')}
-              className={`flex flex-col items-center flex-1 py-1 text-[10px] font-semibold tracking-wide ${
-                activeTab === 'admin_pengaturan' ? 'text-white' : 'text-slate-300'
+              className={`flex flex-col items-center flex-1 py-1.5 text-[10px] font-medium gap-0.5 ${
+                activeTab === 'admin_pengaturan' ? 'text-white' : 'text-gray-500'
               }`}
             >
-              <Info className="w-4.5 h-4.5 mb-1" />
+              <Info className="w-4 h-4" />
               Surat
             </button>
           </>

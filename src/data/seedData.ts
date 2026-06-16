@@ -134,6 +134,276 @@ export const INITIAL_BARANG: Barang[] = [
       'Ukuran': 'Size 7 (Pria)',
       'Bahan': 'Premium Composite Leather'
     }
+  },
+  {
+    id: 'BRG-006',
+    kode: 'PBT-W06',
+    nama: 'Papan Tulis Whiteboard 120x240',
+    kategori_id: 'perabot',
+    foto: 'https://images.unsplash.com/photo-1577563908411-50cb98976fea?w=600&auto=format&fit=crop&q=60',
+    stok_total: 10,
+    stok_tersedia: 10,
+    lokasi: 'Gudang Sarpras Utama',
+    status: 'aktif',
+    deskripsi: 'Papan tulis putih ukuran besar untuk ruang kelas atau ruang rapat. Dilengkapi dengan roda yang bisa dikunci.',
+    spesifikasi: {
+      'Merk': 'Sakura',
+      'Ukuran': '120x240 cm',
+      'Material': 'Magnetik',
+      'Kondisi': 'Baik'
+    }
+  },
+  {
+    id: 'BRG-007',
+    kode: 'KSN-G07',
+    nama: 'Gitar Akustik Yamaha F310',
+    kategori_id: 'kesenian',
+    foto: 'https://images.unsplash.com/photo-1550227298-1b22db9eb2c5?w=600&auto=format&fit=crop&q=60',
+    stok_total: 4,
+    stok_tersedia: 4,
+    lokasi: 'Ruang Seni Musik',
+    status: 'aktif',
+    deskripsi: 'Gitar akustik standar untuk pembelajaran seni musik atau ekstrakurikuler band. Senar mudah diatur dan suara nyaring.',
+    spesifikasi: {
+      'Merk': 'Yamaha',
+      'Tipe': 'F310',
+      'Jenis': 'Akustik String',
+      'Kondisi': 'Baik'
+    }
+  },
+  {
+    id: 'BRG-008',
+    kode: 'ORG-M08',
+    nama: 'Matras Senam Lantai Ketebalan 10cm',
+    kategori_id: 'olahraga',
+    foto: 'https://images.unsplash.com/photo-1518611012118-696072aa579a?w=600&auto=format&fit=crop&q=60',
+    stok_total: 15,
+    stok_tersedia: 15,
+    lokasi: 'Gudang Olahraga',
+    status: 'aktif',
+    deskripsi: 'Matras tebal yang biasa digunakan untuk kegiatan senam lantai (roll depan, belakang, sikap lilin).',
+    spesifikasi: {
+      'Merk': 'Kettler',
+      'Ketebalan': '10 cm',
+      'Material': 'Busa Super',
+      'Kondisi': 'Cukup Baik'
+    }
+  },
+  {
+    id: 'BRG-009',
+    kode: 'PBT-T09',
+    nama: 'Tenda Dome Pramuka Kapasitas 6-8 Orang',
+    kategori_id: 'perabot',
+    foto: 'https://images.unsplash.com/photo-1504280390224-dd94fb778641?w=600&auto=format&fit=crop&q=60',
+    stok_total: 8,
+    stok_tersedia: 8,
+    lokasi: 'Ruang Pramuka',
+    status: 'aktif',
+    deskripsi: 'Tenda dome double layer anti air yang bisa menampung satu regu pramuka. Cocok untuk kemah persami.',
+    spesifikasi: {
+      'Merk': 'Eiger',
+      'Kapasitas': '6-8 Orang',
+      'Tipe': 'Double Layer',
+      'Kondisi': 'Baik'
+    }
+  },
+  {
+    id: 'BRG-010',
+    kode: 'ELK-K10',
+    nama: 'Kamera DSLR Canon EOS 1500D',
+    kategori_id: 'elektronik',
+    foto: 'https://images.unsplash.com/photo-1516035069371-29a1b244cc32?w=600&auto=format&fit=crop&q=60',
+    stok_total: 2,
+    stok_tersedia: 2,
+    lokasi: 'Ruang Jurnalistik',
+    status: 'aktif',
+    deskripsi: 'Kamera DSLR standar untuk dokumentasi kegiatan sekolah. Termasuk lensa kit 18-55mm, memori 32GB, dan tas kamera.',
+    spesifikasi: {
+      'Merk': 'Canon',
+      'Tipe': 'EOS 1500D',
+      'Resolusi': '24.1 MP',
+      'Kondisi': 'Sangat Baik'
+    }
+  },
+  {
+    id: 'BRG-011',
+    kode: 'PBT-M11',
+    nama: 'Meja Lipat Ujian Kayu',
+    kategori_id: 'perabot',
+    foto: 'https://images.unsplash.com/photo-1565538420870-da08ff96a207?w=600&auto=format&fit=crop&q=60',
+    stok_total: 100,
+    stok_tersedia: 95,
+    lokasi: 'Gudang Sarpras Utama',
+    status: 'aktif',
+    deskripsi: 'Meja belajar lipat berbahan dasar kayu tebal, biasa digunakan saat ujian nasional atau tes massal di GOR.',
+    spesifikasi: {
+      'Merk': 'Lokal',
+      'Bahan': 'Kayu Jati Belanda',
+      'Model': 'Lipat',
+      'Kondisi': 'Bervariasi'
+    }
+  },
+  {
+    id: 'BRG-012',
+    kode: 'PBT-K12',
+    nama: 'Kursi Lipat Chitose Hitam',
+    kategori_id: 'perabot',
+    foto: 'https://images.unsplash.com/photo-1580480055273-228ff5388ef8?w=600&auto=format&fit=crop&q=60',
+    stok_total: 200,
+    stok_tersedia: 150,
+    lokasi: 'Gedung Serba Guna',
+    status: 'aktif',
+    deskripsi: 'Kursi lipat besi dengan sandaran yang dapat digunakan untuk acara pertemuan wali murid atau pelepasan siswa.',
+    spesifikasi: {
+      'Merk': 'Chitose',
+      'Warna': 'Hitam',
+      'Material': 'Besi & Kalp',
+      'Kondisi': 'Bervariasi'
+    }
+  },
+  {
+    id: 'BRG-013',
+    kode: 'LAB-G13',
+    nama: 'Gelas Ukur Laboratorium 500ml',
+    kategori_id: 'laboratorium',
+    foto: 'https://images.unsplash.com/photo-1532094349884-543bc11b234d?w=600&auto=format&fit=crop&q=60',
+    stok_total: 20,
+    stok_tersedia: 20,
+    lokasi: 'Laboratorium Kimia',
+    status: 'aktif',
+    deskripsi: 'Alat ukur volume cairan bahan kaca borosilikat tahan panas untuk keperluan praktikum kimia dasar.',
+    spesifikasi: {
+      'Merk': 'Pyrex',
+      'Kapasitas': '500 ml',
+      'Bahan': 'Kaca Borosilikat',
+      'Kondisi': 'Utuh'
+    }
+  },
+  {
+    id: 'BRG-014',
+    kode: 'ORG-R14',
+    nama: 'Raket Bulutangkis Yonex',
+    kategori_id: 'olahraga',
+    foto: 'https://images.unsplash.com/photo-1613918431703-b09e25bfa139?w=600&auto=format&fit=crop&q=60',
+    stok_total: 10,
+    stok_tersedia: 10,
+    lokasi: 'Gudang Olahraga',
+    status: 'aktif',
+    deskripsi: 'Raket untuk permainan bulu tangkis saat pelajaran penjasorkes atau kegiatan ekstrakurikuler.',
+    spesifikasi: {
+      'Merk': 'Yonex',
+      'Tipe': 'Carbonex',
+      'Tarikan': '24 lbs',
+      'Kondisi': 'Baik'
+    }
+  },
+  {
+    id: 'BRG-015',
+    kode: 'LAB-T15',
+    nama: 'Timbangan Analitik Digital',
+    kategori_id: 'laboratorium',
+    foto: 'https://images.unsplash.com/photo-1621601006579-247659424840?w=600&auto=format&fit=crop&q=60',
+    stok_total: 3,
+    stok_tersedia: 3,
+    lokasi: 'Laboratorium Fisika',
+    status: 'aktif',
+    deskripsi: 'Timbangan digital dengan tingkat presisi tinggi (hingga 0,001 gram) untuk menimbang bahan-bahan percobaan.',
+    spesifikasi: {
+      'Merk': 'Ohaus',
+      'Kapasitas': 'Max 200g',
+      'Akurasi': '0.001g',
+      'Kondisi': 'Sangat Baik'
+    }
+  },
+  {
+    id: 'BRG-016',
+    kode: 'ORG-C16',
+    nama: 'Papan Catur Standar Turnamen',
+    kategori_id: 'olahraga',
+    foto: 'https://images.unsplash.com/photo-1528819622765-d6bcf132f793?w=600&auto=format&fit=crop&q=60',
+    stok_total: 5,
+    stok_tersedia: 5,
+    lokasi: 'Ruang Guru Olahraga',
+    status: 'aktif',
+    deskripsi: 'Papan catur lipat beserta bidaknya. Terbuat dari kayu dengan ukuran kotak standar kompetisi (2 inci).',
+    spesifikasi: {
+      'Merk': 'Lokal',
+      'Bahan': 'Kayu Jati',
+      'Ukuran': '50x50 cm',
+      'Kondisi': 'Baik'
+    }
+  },
+  {
+    id: 'BRG-017',
+    kode: 'KSN-K17',
+    nama: 'Keyboard Arranger Yamaha PSR',
+    kategori_id: 'kesenian',
+    foto: 'https://images.unsplash.com/photo-1590845947376-2638caa89309?w=600&auto=format&fit=crop&q=60',
+    stok_total: 1,
+    stok_tersedia: 1,
+    lokasi: 'Ruang Kesenian',
+    status: 'aktif',
+    deskripsi: 'Keyboard elektronik untuk iringan paduan suara sekolah dan pentas seni. Termasuk stand keyboard dan adaptor.',
+    spesifikasi: {
+      'Merk': 'Yamaha',
+      'Tipe': 'PSR-E463',
+      'Tuts': '61 Keys',
+      'Kondisi': 'Baik'
+    }
+  },
+  {
+    id: 'BRG-018',
+    kode: 'ELK-T18',
+    nama: 'Tripod Kamera Takara',
+    kategori_id: 'elektronik',
+    foto: 'https://images.unsplash.com/photo-1527011045974-4b5768cb4da7?w=600&auto=format&fit=crop&q=60',
+    stok_total: 3,
+    stok_tersedia: 3,
+    lokasi: 'Ruang Jurnalistik',
+    status: 'aktif',
+    deskripsi: 'Tripod kokoh yang bisa digunakan untuk kamera DSLR, handycam, maupun smartphone untuk menstabilkan pengambilan gambar.',
+    spesifikasi: {
+      'Merk': 'Takara',
+      'Tinggi': 'Max 1.5 Meter',
+      'Bahan': 'Aluminium',
+      'Kondisi': 'Baik'
+    }
+  },
+  {
+    id: 'BRG-019',
+    kode: 'ORG-N19',
+    nama: 'Net Bola Voli Mikasa',
+    kategori_id: 'olahraga',
+    foto: 'https://images.unsplash.com/photo-1612872087720-bb876e2e67d1?w=600&auto=format&fit=crop&q=60',
+    stok_total: 4,
+    stok_tersedia: 4,
+    lokasi: 'Gudang Olahraga',
+    status: 'aktif',
+    deskripsi: 'Net voli nilon kualitas turnamen dengan kawat baja penguat di bagian atas agar net tidak kendur.',
+    spesifikasi: {
+      'Merk': 'Mikasa',
+      'Bahan': 'Nilon & Sling Baja',
+      'Panjang': '9.5 Meter',
+      'Kondisi': 'Baru'
+    }
+  },
+  {
+    id: 'BRG-020',
+    kode: 'ELK-M20',
+    nama: 'Audio Mixer Yamaha 8 Channel',
+    kategori_id: 'elektronik',
+    foto: 'https://images.unsplash.com/photo-1598488035139-04d50937a70d?w=600&auto=format&fit=crop&q=60',
+    stok_total: 1,
+    stok_tersedia: 1,
+    lokasi: 'Ruang Sound System',
+    status: 'aktif',
+    deskripsi: 'Mixer audio untuk mengatur keluaran suara beberapa mic dan instrumen secara bersamaan. Sangat krusial untuk event besar sekolah.',
+    spesifikasi: {
+      'Merk': 'Yamaha',
+      'Tipe': 'MG08',
+      'Channel': '8 Ch',
+      'Kondisi': 'Baik'
+    }
   }
 ];
 

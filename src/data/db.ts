@@ -3,7 +3,7 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import { User, Kategori, Barang, Peminjaman } from '../types';
+import { User, Kategori, Barang, Peminjaman, DetailPeminjaman } from '../types';
 import { initializeDatabase } from './seedData';
 
 // Ensure seed data is populated

@@ -19,7 +19,7 @@ import CetakTemplateKosongView from "./components/CetakTemplateKosongView";
 import CetakSuratView from "./components/CetakSuratView";
 import DaftarPinjamSheet from "./components/DaftarPinjamSheet";
 import { getBarang } from "./data/db";
-import { X, Calendar, ClipboardList, Info, HelpCircle, Trash2 } from "lucide-react";
+import { X, ClipboardList } from "lucide-react";
 
 export default function App() {
   const [currentUser, setUser] = useState<User | null>(getCurrentUser());
@@ -27,8 +27,7 @@ export default function App() {
   const [preSelectedBarangId, setPreSelectedBarangId] = useState<string | null>(null);
   const [selectedPJMDetail, setSelectedPJMDetail] = useState<Peminjaman | null>(null);
   const [refreshKey, setRefreshKey] = useState<number>(0);
-  
-  // Daftar Pinjam State
+
   const [daftarPinjam, setDaftarPinjam] = useState<DetailPeminjaman[]>(getDaftarPinjam());
   const [isDaftarPinjamOpen, setIsDaftarPinjamOpen] = useState(false);
 
@@ -52,14 +51,9 @@ export default function App() {
     setDaftarPinjam((prev) => prev.filter((p) => p.barang_id !== barangId));
   };
 
-  // Sync state if user role differs
   useEffect(() => {
     if (currentUser) {
-      if (currentUser.role === "admin") {
-        setActiveTab("dashboard");
-      } else {
-        setActiveTab("dashboard");
-      }
+      setActiveTab("dashboard");
     }
   }, [currentUser]);
 
@@ -76,7 +70,6 @@ export default function App() {
     setActiveTab("dashboard");
   };
 
-  // Callback to start borrowing an item from the catalog
   const handleStartBorrow = (barangId: string) => {
     setPreSelectedBarangId(barangId);
     setActiveTab("form_peminjaman");
@@ -86,7 +79,6 @@ export default function App() {
     setRefreshKey((prev) => prev + 1);
   };
 
-  // If user is not logged in, render the login view directly
   if (!currentUser) {
     return <LoginView onLoginSuccess={handleLogin} />;
   }
@@ -105,8 +97,38 @@ export default function App() {
 
   const totalDaftarPinjamCount = daftarPinjam.reduce((acc, curr) => acc + curr.jumlah, 0);
 
+  const getStatusLabel = (status: string) => {
+    switch (status) {
+      case 'menunggu': return 'Menunggu Verifikasi';
+      case 'menunggu_surat': return 'Menunggu Surat Fisik';
+      case 'disetujui': return 'Disetujui';
+      case 'dipinjam': return 'Dipinjam';
+      case 'selesai': return 'Selesai';
+      case 'terlambat': return 'Terlambat';
+      case 'ditolak': return 'Ditolak';
+      default: return status;
+    }
+  };
+
+  const getStatusColor = (status: string) => {
+    switch (status) {
+      case 'menunggu':
+      case 'menunggu_surat':
+        return 'text-amber-700';
+      case 'disetujui':
+        return 'text-teal-700';
+      case 'dipinjam':
+        return 'text-blue-700';
+      case 'terlambat':
+      case 'ditolak':
+        return 'text-red-600';
+      default:
+        return 'text-gray-500';
+    }
+  };
+
   return (
-    <div className="min-h-screen bg-slate-50 flex flex-col font-sans selection:bg-[#1E3A8A]/10 selection:text-[#1E3A8A]">
+    <div className="min-h-screen bg-gray-50 flex flex-col font-sans selection:bg-[#1E3A8A]/10 selection:text-[#1E3A8A]">
       <Navbar
         currentUser={currentUser}
         activeTab={activeTab}
@@ -117,7 +139,6 @@ export default function App() {
       />
 
       <main className="flex-1 pb-16 md:pb-6">
-        {/* Router switches */}
         {activeTab === "dashboard" && currentUser.role !== "admin" && (
           <PeminjamDashboard
             key={refreshKey}
@@ -172,13 +193,6 @@ export default function App() {
           <CetakTemplateKosongView onBack={() => setActiveTab("peminjaman_saya")} />
         )}
 
-        {activeTab.startsWith("cetak_surat_") && (
-          <CetakSuratView 
-            loanId={activeTab.replace("cetak_surat_", "")}
-            onBack={() => setActiveTab("peminjaman_saya")}
-          />
-        )}
-
         {activeTab === "admin_inventaris" && currentUser.role === "admin" && (
           <AdminInventaris
             key={refreshKey}
@@ -188,14 +202,12 @@ export default function App() {
         )}
 
         {activeTab === "admin_pengaturan" && currentUser.role === "admin" && (
-          <div className="p-4 sm:p-6 max-w-7xl mx-auto">
-            <AdminPengaturanSurat />
-          </div>
+          <AdminPengaturanSurat />
         )}
       </main>
 
-      {/* GLOBAL DETAILS DIALOG WINDOW FOR TRANS_BOOKINGS INFOS */}
-      <DaftarPinjamSheet 
+      {/* Daftar Pinjam Sheet */}
+      <DaftarPinjamSheet
         isOpen={isDaftarPinjamOpen}
         onClose={() => setIsDaftarPinjamOpen(false)}
         items={daftarPinjam}
@@ -203,156 +215,104 @@ export default function App() {
         onProceed={() => setActiveTab("form_peminjaman")}
       />
 
+      {/* Loan Detail Modal */}
       {selectedPJMDetail && (
-        <div className="fixed inset-0 bg-slate-900/60 backdrop-blur-xs flex items-center justify-center p-4 z-50">
-          <div className="bg-white rounded-xl border-2 border-slate-900 w-full max-w-md overflow-hidden flex flex-col shadow-2xl animate-scale-up">
-            {/* Header popup window */}
-            <div className="px-5 py-3.5 border-b-2 border-slate-900 flex justify-between items-center text-[#1E3A8A] bg-slate-50">
-              <div className="flex items-center gap-1.5">
-                <ClipboardList className="w-5 h-5 stroke-[2.5]" />
-                <span className="font-black text-xs uppercase tracking-wider italic">
-                  Rincian Transaksi Peminjaman
-                </span>
+        <div className="fixed inset-0 bg-gray-900/50 flex items-center justify-center p-4 z-50">
+          <div className="bg-white rounded-xl border border-gray-200 w-full max-w-md overflow-hidden flex flex-col shadow-lg animate-scale-up">
+
+            {/* Header */}
+            <div className="px-5 py-4 border-b border-gray-100 flex justify-between items-center">
+              <div className="flex items-center gap-2 text-[#1E3A8A]">
+                <ClipboardList className="w-4 h-4" />
+                <span className="font-semibold text-sm text-gray-900">Rincian Transaksi Peminjaman</span>
               </div>
               <button
                 onClick={() => setSelectedPJMDetail(null)}
-                className="text-slate-500 hover:text-slate-900 transition cursor-pointer"
+                className="p-1.5 hover:bg-gray-100 rounded-lg text-gray-400 hover:text-gray-700 transition cursor-pointer"
               >
-                <X className="w-5 h-5 stroke-[3]" />
+                <X className="w-4 h-4" />
               </button>
             </div>
 
-            {/* Content list popup */}
-            <div className="p-5 text-xs text-slate-700 space-y-4 max-h-[70vh] overflow-y-auto">
-              {/* Profile Block */}
-              <div className="space-y-2">
-                <div className="flex justify-between items-center bg-slate-100/50 p-2.5 rounded border-2 border-slate-900">
-                  <div>
-                    <span className="text-[9px] text-slate-450 font-black block tracking-wider leading-none">
-                      Nomor Kode Pinjam:
-                    </span>
-                    <span className="font-black text-sm text-[#1E3A8A] mt-1 block">
-                      {selectedPJMDetail.kode}
-                    </span>
-                  </div>
-                  <div className="text-right">
-                    <span className="text-[9px] text-slate-455 font-black block tracking-wider leading-none">
-                      Status Pengajuan:
-                    </span>
-                    <span
-                      className={`text-[10px] font-black block mt-1.5 ${
-                        selectedPJMDetail.status === "menunggu"
-                          ? "text-[#B45309]"
-                          : selectedPJMDetail.status === "disetujui"
-                            ? "text-[#0F766E]"
-                            : selectedPJMDetail.status === "dipinjam"
-                              ? "text-[#1E3A8A]"
-                              : "text-slate-650"
-                      }`}
-                    >
-                      {selectedPJMDetail.status === "menunggu"
-                        ? "Menunggu Verifikasi"
-                        : selectedPJMDetail.status === "disetujui"
-                          ? "Disetujui"
-                          : selectedPJMDetail.status === "dipinjam"
-                            ? "Dipinjam"
-                            : selectedPJMDetail.status === "selesai"
-                              ? "Selesai"
-                              : selectedPJMDetail.status === "terlambat"
-                                ? "Terlambat"
-                                : "Ditolak"}
-                    </span>
-                  </div>
-                </div>
+            {/* Content */}
+            <div className="p-5 text-sm text-gray-700 space-y-4 max-h-[70vh] overflow-y-auto">
 
-                <div className="border-2 border-slate-900 rounded p-2.5 space-y-1 bg-white">
-                  <p className="font-bold text-slate-800">
-                    Pemohon: {selectedPJMDetail.peminjam_nama}
-                  </p>
-                  <p className="text-slate-500 text-[10.5px] font-semibold">
-                    {selectedPJMDetail.peminjam_kelas} •{" "}
-                    {selectedPJMDetail.peminjam_role.toUpperCase()}
-                  </p>
-                  <p className="text-slate-600 mt-1.5 leading-snug font-bold italic">
-                    "{selectedPJMDetail.keperluan}"
-                  </p>
+              {/* Code + Status */}
+              <div className="flex justify-between items-center bg-gray-50 p-3 rounded-lg border border-gray-100">
+                <div>
+                  <span className="text-xs text-gray-400 font-medium block">Kode Transaksi</span>
+                  <span className="font-semibold text-[#1E3A8A] text-base">{selectedPJMDetail.kode}</span>
+                </div>
+                <div className="text-right">
+                  <span className="text-xs text-gray-400 font-medium block">Status</span>
+                  <span className={`text-xs font-semibold block mt-0.5 ${getStatusColor(selectedPJMDetail.status)}`}>
+                    {getStatusLabel(selectedPJMDetail.status)}
+                  </span>
                 </div>
               </div>
 
-              {/* Items List */}
+              {/* Peminjam */}
+              <div className="border border-gray-100 rounded-lg p-3 space-y-1 bg-white">
+                <p className="font-medium text-gray-900">
+                  Pemohon: {selectedPJMDetail.peminjam_nama}
+                </p>
+                <p className="text-xs text-gray-400">
+                  {selectedPJMDetail.peminjam_kelas} · {selectedPJMDetail.peminjam_role.toUpperCase()}
+                </p>
+                <p className="text-xs text-gray-600 mt-1.5 leading-snug">
+                  "{selectedPJMDetail.keperluan}"
+                </p>
+              </div>
+
+              {/* Items */}
               <div className="space-y-1.5">
-                <span className="text-[10px] text-slate-500 font-extrabold tracking-wide block">
-                  Inventaris yang Dipinjam:
-                </span>
+                <span className="text-xs text-gray-400 font-medium block uppercase tracking-wide">Inventaris yang Dipinjam:</span>
                 {selectedPJMDetail.items.map((it, idx) => {
                   const match = allBarang.find((b) => b.id === it.barang_id);
                   return (
-                    <div
-                      key={idx}
-                      className="flex justify-between items-center p-2 rounded bg-slate-50 border-2 border-slate-900"
-                    >
-                      <span className="font-bold text-slate-800">
-                        {match ? match.nama : "Barang"}
-                      </span>
-                      <span className="font-black text-[#1E3A8A]">
-                        ×{it.jumlah} Unit
-                      </span>
+                    <div key={idx} className="flex justify-between items-center p-2.5 rounded-lg bg-gray-50 border border-gray-100">
+                      <span className="font-medium text-gray-800">{match ? match.nama : "Barang"}</span>
+                      <span className="font-semibold text-[#1E3A8A]">×{it.jumlah} Unit</span>
                     </div>
                   );
                 })}
               </div>
 
-              {/* Borrow Timings */}
-              <div className="grid grid-cols-2 gap-3 pb-1">
-                <div className="p-2 border-2 border-slate-900 rounded bg-[#f8fafc]">
-                  <span className="text-[9px] text-slate-400 block tracking-wider font-black">
-                    Ambil Barang
-                  </span>
-                  <span className="font-black text-slate-800 block mt-0.5">
-                    {selectedPJMDetail.tgl_mulai}
-                  </span>
+              {/* Dates */}
+              <div className="grid grid-cols-2 gap-3">
+                <div className="p-2.5 border border-gray-100 rounded-lg bg-gray-50">
+                  <span className="text-xs text-gray-400 block font-medium uppercase tracking-wide">Ambil Barang</span>
+                  <span className="font-semibold text-gray-800 block mt-0.5 text-sm">{selectedPJMDetail.tgl_mulai}</span>
                 </div>
-                <div className="p-2 border-2 border-slate-900 rounded bg-[#f8fafc]">
-                  <span className="text-[9px] text-slate-400 block tracking-wider font-black">
-                    Harus Kembali
-                  </span>
-                  <span className="font-black text-slate-800 block mt-0.5">
-                    {selectedPJMDetail.tgl_kembali_rencana}
-                  </span>
+                <div className="p-2.5 border border-gray-100 rounded-lg bg-gray-50">
+                  <span className="text-xs text-gray-400 block font-medium uppercase tracking-wide">Harus Kembali</span>
+                  <span className="font-semibold text-gray-800 block mt-0.5 text-sm">{selectedPJMDetail.tgl_kembali_rencana}</span>
                 </div>
               </div>
 
-              {/* Additional notes alerts */}
+              {/* Notes */}
               {selectedPJMDetail.catatan_peminjam && (
-                <div className="p-2.5 bg-white rounded border-2 border-slate-900">
-                  <span className="font-extrabold text-slate-500 block text-[9.5px] tracking-wider">
-                    Catatan Tambahan Siswa:
-                  </span>
-                  <p className="text-slate-600 mt-0.5 leading-snug font-medium">
-                    {selectedPJMDetail.catatan_peminjam}
-                  </p>
+                <div className="p-3 bg-white rounded-lg border border-gray-100">
+                  <span className="font-medium text-gray-400 block text-xs uppercase tracking-wide mb-1">Catatan Tambahan Siswa:</span>
+                  <p className="text-gray-600 text-sm leading-snug">{selectedPJMDetail.catatan_peminjam}</p>
                 </div>
               )}
 
               {selectedPJMDetail.catatan_admin && (
-                <div className="p-2.5 bg-blue-50/40 text-slate-800 rounded border-2 border-slate-900 space-y-1">
-                  <span className="font-black text-[#1E3A8A] block text-[9.5px] tracking-wider">
-                    Review & Catatan Admin TU:
-                  </span>
-                  <p className="text-slate-700 leading-snug font-bold">
-                    "{selectedPJMDetail.catatan_admin}"
-                  </p>
+                <div className="p-3 bg-blue-50/40 text-gray-800 rounded-lg border border-blue-100 space-y-1">
+                  <span className="font-medium text-[#1E3A8A] block text-xs uppercase tracking-wide">Review & Catatan Admin TU:</span>
+                  <p className="text-gray-600 text-sm leading-snug">"{selectedPJMDetail.catatan_admin}"</p>
                 </div>
               )}
             </div>
 
-            {/* Footer lock */}
-            <div className="p-4 bg-slate-50 border-t-2 border-slate-900 flex justify-end">
+            {/* Footer */}
+            <div className="p-4 bg-gray-50 border-t border-gray-100 flex justify-end">
               <button
                 onClick={() => setSelectedPJMDetail(null)}
-                className="px-4 py-2 bg-white hover:bg-slate-100 border-2 border-slate-900 text-slate-800 text-[10px] font-black tracking-wider rounded-lg transition-all cursor-pointer"
+                className="px-4 py-2 bg-white hover:bg-gray-100 border border-gray-200 text-gray-700 text-sm font-medium rounded-lg transition cursor-pointer"
               >
-                Tutup Jendela
+                Tutup
               </button>
             </div>
           </div>

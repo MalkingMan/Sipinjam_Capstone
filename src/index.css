@@ -5,12 +5,27 @@
   --font-sans: "Inter", ui-sans-serif, system-ui, -apple-system, blinkmacsystemfont, sans-serif;
 }
 
-@layer utilities {
-  .font-display-bold {
+@layer base {
+  body {
+    background-color: #F9FAFB;
+    color: #111827;
     font-family: var(--font-sans);
-    font-weight: 900;
-    text-transform: uppercase;
-    font-style: italic;
-    letter-spacing: -0.025em;
+  }
+}
+
+@layer utilities {
+  .animate-fade-in {
+    animation: fadeIn 0.15s ease-out;
+  }
+  .animate-scale-up {
+    animation: scaleUp 0.15s ease-out;
+  }
+  @keyframes fadeIn {
+    from { opacity: 0; transform: translateY(4px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+  @keyframes scaleUp {
+    from { opacity: 0; transform: scale(0.97); }
+    to   { opacity: 1; transform: scale(1); }
   }
 }
