@@ -15,6 +15,7 @@ import PeminjamanSaya from "./components/PeminjamanSaya";
 import AdminDashboard from "./components/AdminDashboard";
 import AdminInventaris from "./components/AdminInventaris";
 import AdminPengaturanSurat from "./components/AdminPengaturanSurat";
+import AdminRiwayatPeminjaman from "./components/AdminRiwayatPeminjaman";
 import CetakTemplateKosongView from "./components/CetakTemplateKosongView";
 import CetakSuratView from "./components/CetakSuratView";
 import DaftarPinjamSheet from "./components/DaftarPinjamSheet";
@@ -203,6 +204,10 @@ export default function App() {
 
         {activeTab === "admin_pengaturan" && currentUser.role === "admin" && (
           <AdminPengaturanSurat />
+        )}
+
+        {activeTab === "admin_riwayat" && currentUser.role === "admin" && (
+          <AdminRiwayatPeminjaman />
         )}
       </main>
 
