@@ -53,8 +53,14 @@ export default function DaftarPinjamSheet({ isOpen, onClose, items, onUpdateQty,
               return (
                 <div key={item.barang_id} className="bg-white p-3 rounded-xl border border-gray-200 flex gap-3">
                   <div className="w-16 h-16 bg-gray-100 border border-gray-200 rounded-lg object-cover overflow-hidden shrink-0 flex items-center justify-center">
-                    {b.foto_url ? (
-                      <img src={b.foto_url} alt={b.nama} className="w-full h-full object-cover" />
+                    {b.foto ? (
+                      <img
+                        src={b.foto}
+                        alt={b.nama}
+                        referrerPolicy="no-referrer"
+                        className="w-full h-full object-cover"
+                        onError={(e) => { e.currentTarget.src = 'https://placehold.co/150x150/f9fafb/6b7280?text=Foto'; }}
+                      />
                     ) : (
                       <span className="text-xs text-gray-400">Foto</span>
                     )}

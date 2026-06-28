@@ -9,6 +9,9 @@ import { initializeDatabase } from './seedData';
 // Ensure seed data is populated
 initializeDatabase();
 
+// Evaluasi keterlambatan saat aplikasi dimuat
+markOverdueLoans();
+
 export function getUsers(): User[] {
   const data = localStorage.getItem('sipinjam_users');
   return data ? JSON.parse(data) : [];
@@ -43,6 +46,25 @@ export function getPeminjaman(): Peminjaman[] {
 
 export function savePeminjaman(peminjaman: Peminjaman[]) {
   localStorage.setItem('sipinjam_peminjaman', JSON.stringify(peminjaman));
+}
+
+/**
+ * Tandai peminjaman berstatus 'dipinjam' yang sudah melewati tanggal
+ * rencana kembali menjadi 'terlambat'. Idempoten — hanya menyimpan
+ * jika ada perubahan.
+ */
+export function markOverdueLoans() {
+  const loans = getPeminjaman();
+  const today = new Date().toISOString().split('T')[0];
+  let changed = false;
+  const updated: Peminjaman[] = loans.map((l) => {
+    if (l.status === 'dipinjam' && l.tgl_kembali_rencana < today) {
+      changed = true;
+      return { ...l, status: 'terlambat' };
+    }
+    return l;
+  });
+  if (changed) savePeminjaman(updated);
 }
 
 export interface PengaturanSurat {

@@ -44,10 +44,16 @@ export default function FormPeminjaman({
 }: FormPeminjamanProps) {
   const allBarang = getBarang().filter((b) => b.status === "aktif");
 
+  const toDateStr = (d: Date) => d.toISOString().split("T")[0];
+  const todayStr = toDateStr(new Date());
+  const twoDaysLater = new Date();
+  twoDaysLater.setDate(twoDaysLater.getDate() + 2);
+  const defaultEndStr = toDateStr(twoDaysLater);
+
   const [step, setStep] = useState<1 | 2>(1);
 
-  const [tglMulai, setTglMulai] = useState("2026-06-06");
-  const [tglKembali, setTglKembali] = useState("2026-06-08");
+  const [tglMulai, setTglMulai] = useState(todayStr);
+  const [tglKembali, setTglKembali] = useState(defaultEndStr);
   const [keperluan, setKeperluan] = useState("");
   const [kategoriKegiatan, setKategoriKegiatan] = useState<KategoriKegiatan>("osis");
   const [catatan, setCatatan] = useState("");
@@ -59,7 +65,7 @@ export default function FormPeminjaman({
 
   const [suratNamaKegiatan, setSuratNamaKegiatan] = useState("");
   const [suratHari, setSuratHari] = useState("Senin");
-  const [suratTanggal, setSuratTanggal] = useState("2026-06-06");
+  const [suratTanggal, setSuratTanggal] = useState(todayStr);
   const [suratWaktuMulai, setSuratWaktuMulai] = useState("07:00");
   const [suratWaktuSelesai, setSuratWaktuSelesai] = useState("15:30");
   const [suratTempat, setSuratTempat] = useState("SMAN 1 Sentolo");
@@ -90,7 +96,15 @@ export default function FormPeminjaman({
   const handleNextStep = (e: React.FormEvent) => {
     e.preventDefault();
     setErrorMsg(null);
-    if (tglKembali && tglMulai && new Date(tglKembali) < new Date(tglMulai)) {
+    if (!tglMulai || !tglKembali) {
+      setErrorMsg("Tanggal mulai dan tanggal selesai wajib diisi.");
+      return;
+    }
+    if (tglMulai < todayStr) {
+      setErrorMsg("Tanggal mulai tidak boleh sebelum hari ini.");
+      return;
+    }
+    if (new Date(tglKembali) < new Date(tglMulai)) {
       setErrorMsg("Tanggal pengembalian rencana tidak boleh sebelum tanggal mulai.");
       return;
     }
@@ -116,9 +130,15 @@ export default function FormPeminjaman({
       }
     }
 
-    const prefix = "PJM-2026-";
-    const randCode = String(Math.floor(Math.random() * 900) + 100);
-    const code = prefix + randCode;
+    const loans = getPeminjaman();
+    const year = new Date().getFullYear();
+    const prefix = `PJM-${year}-`;
+    const maxSeq = loans.reduce((max, l) => {
+      if (!l.kode.startsWith(prefix)) return max;
+      const n = parseInt(l.kode.slice(prefix.length), 10);
+      return isNaN(n) ? max : Math.max(max, n);
+    }, 0);
+    const code = prefix + String(maxSeq + 1).padStart(3, "0");
     setGeneratedCode(code);
 
     const newPeminjaman: Peminjaman = {
@@ -146,7 +166,18 @@ export default function FormPeminjaman({
       surat_nis_ketua: suratNisKetua.trim(),
     };
 
-    const loans = getPeminjaman();
+    // Reservasi stok: kurangi stok_tersedia saat pengajuan dibuat agar
+    // tidak terjadi over-booking oleh pengajuan lain yang masih menunggu.
+    const freshBarang = getBarang();
+    const reservedBarang = freshBarang.map((b) => {
+      const item = daftarPinjam.find((it) => it.barang_id === b.id);
+      if (item) {
+        return { ...b, stok_tersedia: Math.max(0, b.stok_tersedia - item.jumlah) };
+      }
+      return b;
+    });
+    saveBarang(reservedBarang);
+
     savePeminjaman([newPeminjaman, ...loans]);
     clearDaftarPinjam();
     setIsSubmitted(true);
@@ -282,6 +313,7 @@ export default function FormPeminjaman({
                 <input
                   id="tgl_mulai"
                   type="date"
+                  min={todayStr}
                   value={tglMulai}
                   onChange={(e) => setTglMulai(e.target.value)}
                   className={inputClass}
@@ -295,6 +327,7 @@ export default function FormPeminjaman({
                 <input
                   id="tgl_kembali"
                   type="date"
+                  min={tglMulai || todayStr}
                   value={tglKembali}
                   onChange={(e) => setTglKembali(e.target.value)}
                   className={inputClass}

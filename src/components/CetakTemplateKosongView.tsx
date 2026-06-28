@@ -53,13 +53,13 @@ export default function CetakTemplateKosongView({ onBack }: { onBack: () => void
           </div>
           <div className="flex-1 text-center">
             <h1 className="font-bold text-[14pt] leading-tight m-0">
-              {settings.kop_nama_sekolah}
+              SMA NEGERI 1 SENTOLO
             </h1>
             <p className="text-[10pt] leading-tight m-0 mt-1">
-              Alamat: {settings.kop_alamat}
+              Alamat: Jl. Sentolo-Muntilan Km. 1, Sentolo, Kulon Progo, Kode Pos 55664
             </p>
             <p className="text-[10pt] leading-tight m-0">
-              Telp: {settings.kop_kontak}
+              Telp: (0274) 7723565
             </p>
           </div>
         </div>

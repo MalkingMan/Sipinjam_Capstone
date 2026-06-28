@@ -20,7 +20,7 @@ export default function KatalogBarang({ daftarPinjam = [], onStartBorrow, onAddD
   const [selectedKategori, setSelectedKategori] = useState('semua');
   const [selectedBarangDetail, setSelectedBarangDetail] = useState<Barang | null>(null);
   const [qtySelection, setQtySelection] = useState<Record<string, number>>({});
-  const [conflictDialog, setConflictDialog] = useState<{barang: Barang, qty: number, existingQty: number} | null>(null);
+  const [conflictDialog, setConflictDialog] = useState<{ barang: Barang, qty: number, existingQty: number } | null>(null);
 
   const barangList = getBarang();
   const kategoriList = getKategori();
@@ -63,7 +63,7 @@ export default function KatalogBarang({ daftarPinjam = [], onStartBorrow, onAddD
       onAddDaftarPinjam(barang.id, qty);
       showToast(`${barang.nama} diubah jumlahnya menjadi ×${qty}`);
     } else {
-      const finalQty = Math.min(barang.stok_total, existingQty + qty);
+      const finalQty = Math.min(barang.stok_tersedia, existingQty + qty);
       onAddDaftarPinjam(barang.id, finalQty);
       showToast(`${barang.nama} ditambahkan menjadi ×${finalQty}`);
     }
@@ -73,8 +73,8 @@ export default function KatalogBarang({ daftarPinjam = [], onStartBorrow, onAddD
 
   const filteredBarangList = barangList.filter((b) => {
     const matchesSearch = b.nama.toLowerCase().includes(searchQuery.toLowerCase()) ||
-                          b.kode.toLowerCase().includes(searchQuery.toLowerCase()) ||
-                          b.deskripsi.toLowerCase().includes(searchQuery.toLowerCase());
+      b.kode.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      b.deskripsi.toLowerCase().includes(searchQuery.toLowerCase());
     const matchesKategori = selectedKategori === 'semua' || b.kategori_id === selectedKategori;
     return matchesSearch && matchesKategori;
   });
@@ -129,11 +129,10 @@ export default function KatalogBarang({ daftarPinjam = [], onStartBorrow, onAddD
               <div
                 key={day}
                 title={isBooked ? `Sudah dibooking oleh ${loanCode}` : 'Tersedia'}
-                className={`text-xs py-1.5 rounded-md font-medium select-none cursor-help transition-all ${
-                  isBooked
-                    ? 'bg-amber-50 text-amber-600 border border-amber-200'
-                    : 'bg-white text-gray-700 border border-gray-100 hover:bg-gray-100'
-                }`}
+                className={`text-xs py-1.5 rounded-md font-medium select-none cursor-help transition-all ${isBooked
+                  ? 'bg-amber-50 text-amber-600 border border-amber-200'
+                  : 'bg-white text-gray-700 border border-gray-100 hover:bg-gray-100'
+                  }`}
               >
                 {day}
               </div>
@@ -235,7 +234,7 @@ export default function KatalogBarang({ daftarPinjam = [], onStartBorrow, onAddD
                   <div className="flex flex-1 items-center gap-2">
                     <div className="flex items-center gap-1 bg-gray-50 border border-gray-200 rounded-lg p-1">
                       <button
-                        onClick={() => handleUpdateQty(selectedBarangDetail.id, -1, selectedBarangDetail.stok_total)}
+                        onClick={() => handleUpdateQty(selectedBarangDetail.id, -1, selectedBarangDetail.stok_tersedia)}
                         disabled={selectedBarangDetail.stok_tersedia <= 0}
                         className="p-1.5 hover:bg-gray-200 rounded-md disabled:opacity-50 text-gray-700"
                       >
@@ -243,7 +242,7 @@ export default function KatalogBarang({ daftarPinjam = [], onStartBorrow, onAddD
                       </button>
                       <span className="text-sm font-medium w-6 text-center">{qtySelection[selectedBarangDetail.id] || 1}</span>
                       <button
-                        onClick={() => handleUpdateQty(selectedBarangDetail.id, 1, selectedBarangDetail.stok_total)}
+                        onClick={() => handleUpdateQty(selectedBarangDetail.id, 1, selectedBarangDetail.stok_tersedia)}
                         disabled={selectedBarangDetail.stok_tersedia <= 0}
                         className="p-1.5 hover:bg-gray-200 rounded-md disabled:opacity-50 text-[#1E3A8A]"
                       >
@@ -301,11 +300,10 @@ export default function KatalogBarang({ daftarPinjam = [], onStartBorrow, onAddD
           <div className="flex items-center gap-2 overflow-x-auto pb-1">
             <button
               onClick={() => setSelectedKategori('semua')}
-              className={`px-3.5 py-1.5 rounded-full text-xs font-medium shrink-0 transition-all border cursor-pointer ${
-                selectedKategori === 'semua'
-                  ? 'bg-[#1E3A8A] text-white border-[#1E3A8A]'
-                  : 'bg-white border-gray-200 text-gray-600 hover:bg-gray-50'
-              }`}
+              className={`px-3.5 py-1.5 rounded-full text-xs font-medium shrink-0 transition-all border cursor-pointer ${selectedKategori === 'semua'
+                ? 'bg-[#1E3A8A] text-white border-[#1E3A8A]'
+                : 'bg-white border-gray-200 text-gray-600 hover:bg-gray-50'
+                }`}
             >
               Semua Barang
             </button>
@@ -313,11 +311,10 @@ export default function KatalogBarang({ daftarPinjam = [], onStartBorrow, onAddD
               <button
                 key={kat.id}
                 onClick={() => setSelectedKategori(kat.id)}
-                className={`px-3.5 py-1.5 rounded-full text-xs font-medium shrink-0 transition-all border cursor-pointer ${
-                  selectedKategori === kat.id
-                    ? 'bg-[#1E3A8A] text-white border-[#1E3A8A]'
-                    : 'bg-white border-gray-200 text-gray-600 hover:bg-gray-50'
-                }`}
+                className={`px-3.5 py-1.5 rounded-full text-xs font-medium shrink-0 transition-all border cursor-pointer ${selectedKategori === kat.id
+                  ? 'bg-[#1E3A8A] text-white border-[#1E3A8A]'
+                  : 'bg-white border-gray-200 text-gray-600 hover:bg-gray-50'
+                  }`}
               >
                 {kat.nama}
               </button>
@@ -398,7 +395,7 @@ export default function KatalogBarang({ daftarPinjam = [], onStartBorrow, onAddD
                         <div className="flex items-center gap-2">
                           <div className="flex items-center gap-1 bg-gray-50 border border-gray-200 rounded-lg p-0.5">
                             <button
-                              onClick={() => handleUpdateQty(barang.id, -1, barang.stok_total)}
+                              onClick={() => handleUpdateQty(barang.id, -1, barang.stok_tersedia)}
                               disabled={!isAvailable}
                               className="p-1 hover:bg-gray-200 rounded-md disabled:opacity-50 text-gray-700"
                             >
@@ -406,7 +403,7 @@ export default function KatalogBarang({ daftarPinjam = [], onStartBorrow, onAddD
                             </button>
                             <span className="text-xs font-medium w-4 text-center">{qtySelection[barang.id] || 1}</span>
                             <button
-                              onClick={() => handleUpdateQty(barang.id, 1, barang.stok_total)}
+                              onClick={() => handleUpdateQty(barang.id, 1, barang.stok_tersedia)}
                               disabled={!isAvailable}
                               className="p-1 hover:bg-gray-200 rounded-md disabled:opacity-50 text-[#1E3A8A]"
                             >
@@ -444,7 +441,7 @@ export default function KatalogBarang({ daftarPinjam = [], onStartBorrow, onAddD
                 onClick={() => handleResolveConflict('add')}
                 className="w-full bg-[#1E3A8A] hover:bg-[#1e40af] text-white py-2.5 rounded-lg text-sm font-medium cursor-pointer"
               >
-                + Tambah Lagi (Total ×{Math.min(conflictDialog.barang.stok, conflictDialog.existingQty + conflictDialog.qty)})
+                + Tambah Lagi (Total ×{Math.min(conflictDialog.barang.stok_tersedia, conflictDialog.existingQty + conflictDialog.qty)})
               </button>
               <button
                 onClick={() => handleResolveConflict('replace')}

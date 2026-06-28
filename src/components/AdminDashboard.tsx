@@ -20,7 +20,7 @@ export default function AdminDashboard({ currentUser, onRefresh }: AdminDashboar
   const [selectedLoan, setSelectedLoan] = useState<Peminjaman | null>(null);
   const [activeListTab, setActiveListTab] = useState<BottomTab>('menunggu');
   const [adminNote, setAdminNote] = useState('');
-  const [returnCondition, setReturnCondition] = useState<'baik' | 'rusak_ringan' | 'rusak_berat' | 'hilang'>('baik');
+  const [returnConditions, setReturnConditions] = useState<Record<string, 'baik' | 'rusak_ringan' | 'rusak_berat' | 'hilang'>>({});
   const [returnNote, setReturnNote] = useState('');
   const [isRejecting, setIsRejecting] = useState(false);
   const [isReturning, setIsReturning] = useState(false);
@@ -50,28 +50,11 @@ export default function AdminDashboard({ currentUser, onRefresh }: AdminDashboar
 
   const handleApprove = (loanId: string) => {
     const loans = getPeminjaman();
-    const barangList = getBarang();
     const targetLoanIndex = loans.findIndex((l) => l.id === loanId);
-
     if (targetLoanIndex === -1) return;
-    const targetLoan = loans[targetLoanIndex];
 
-    for (const item of targetLoan.items) {
-      const match = barangList.find((b) => b.id === item.barang_id);
-      if (!match || match.stok_tersedia < item.jumlah) {
-        alert(`Gagal menyetujui: Stok ${match ? match.nama : 'Barang'} tidak mencukupi.`);
-        return;
-      }
-    }
-
-    const updatedBarang = barangList.map((b) => {
-      const neededItem = targetLoan.items.find((it) => it.barang_id === b.id);
-      if (neededItem) {
-        return { ...b, stok_tersedia: Math.max(0, b.stok_tersedia - neededItem.jumlah) };
-      }
-      return b;
-    });
-
+    // Stok sudah direservasi (dikurangi) sejak pengajuan dibuat, sehingga
+    // persetujuan cukup mengubah status tanpa mengurangi stok lagi.
     const response = confirm('Setujui peminjaman ini? Status barang akan ditandai "DISETUJUI & Siap Diambil".');
     if (!response) return;
 
@@ -80,7 +63,6 @@ export default function AdminDashboard({ currentUser, onRefresh }: AdminDashboar
     loans[targetLoanIndex].approver_id = currentUser.id;
 
     savePeminjaman(loans);
-    saveBarang(updatedBarang);
     setAdminNote('');
     setSelectedLoan(null);
     onRefresh();
@@ -93,14 +75,25 @@ export default function AdminDashboard({ currentUser, onRefresh }: AdminDashboar
     }
 
     const loans = getPeminjaman();
+    const barangList = getBarang();
     const targetLoanIndex = loans.findIndex((l) => l.id === loanId);
     if (targetLoanIndex === -1) return;
+
+    // Lepaskan kembali stok yang sempat direservasi saat pengajuan dibuat.
+    const releasedBarang = barangList.map((b) => {
+      const item = loans[targetLoanIndex].items.find((it) => it.barang_id === b.id);
+      if (item) {
+        return { ...b, stok_tersedia: Math.min(b.stok_total, b.stok_tersedia + item.jumlah) };
+      }
+      return b;
+    });
 
     loans[targetLoanIndex].status = 'ditolak';
     loans[targetLoanIndex].catatan_admin = adminNote.trim();
     loans[targetLoanIndex].approver_id = currentUser.id;
 
     savePeminjaman(loans);
+    saveBarang(releasedBarang);
     setAdminNote('');
     setIsRejecting(false);
     setSelectedLoan(null);
@@ -117,6 +110,24 @@ export default function AdminDashboard({ currentUser, onRefresh }: AdminDashboar
     onRefresh();
   };
 
+  const openReturnForm = (loan: Peminjaman) => {
+    const init: Record<string, 'baik' | 'rusak_ringan' | 'rusak_berat' | 'hilang'> = {};
+    loan.items.forEach((it) => { init[it.barang_id] = 'baik'; });
+    setReturnConditions(init);
+    setReturnNote('');
+    setIsReturning(true);
+  };
+
+  const condLabel = (c: string) => {
+    switch (c) {
+      case 'baik': return 'Baik';
+      case 'rusak_ringan': return 'Rusak Ringan';
+      case 'rusak_berat': return 'Rusak Berat';
+      case 'hilang': return 'Hilang';
+      default: return c;
+    }
+  };
+
   const handleReturnConfirm = (loanId: string) => {
     const loans = getPeminjaman();
     const barangList = getBarang();
@@ -128,30 +139,40 @@ export default function AdminDashboard({ currentUser, onRefresh }: AdminDashboar
     const updatedBarang = barangList.map((b) => {
       const returnedItem = targetLoan.items.find((it) => it.barang_id === b.id);
       if (returnedItem) {
-        const stockToIncrease = returnCondition === 'hilang' ? 0 : returnedItem.jumlah;
-        const totalStockDelta = returnCondition === 'hilang' ? -returnedItem.jumlah : 0;
+        const cond = returnConditions[b.id] || 'baik';
+        // Rusak berat & hilang ditarik dari peredaran: stok_total berkurang,
+        // tidak dikembalikan ke stok_tersedia. Baik & rusak ringan kembali.
+        const isWriteOff = cond === 'hilang' || cond === 'rusak_berat';
+        const stockToIncrease = isWriteOff ? 0 : returnedItem.jumlah;
+        const totalStockDelta = isWriteOff ? -returnedItem.jumlah : 0;
+        const newTotal = Math.max(0, b.stok_total + totalStockDelta);
         return {
           ...b,
-          stok_total: Math.max(0, b.stok_total + totalStockDelta),
-          stok_tersedia: Math.min(b.stok_total + totalStockDelta, b.stok_tersedia + stockToIncrease)
+          stok_total: newTotal,
+          stok_tersedia: Math.min(newTotal, b.stok_tersedia + stockToIncrease)
         };
       }
       return b;
     });
 
+    const ringkasan = targetLoan.items.map((it) => {
+      const nama = allBarang.find((b) => b.id === it.barang_id)?.nama || 'Barang';
+      return `${nama}: ${condLabel(returnConditions[it.barang_id] || 'baik')}`;
+    }).join('; ');
+
     loans[targetLoanIndex].status = 'selesai';
     loans[targetLoanIndex].tgl_kembali_aktual = new Date().toISOString().split('T')[0];
-    loans[targetLoanIndex].catatan_admin = `Kondisi: ${returnCondition.toUpperCase()}. Catatan: ${returnNote.trim() || 'Kondisi baik.'}`;
-    loans[targetLoanIndex].items = loans[targetLoanIndex].items.map((it) => ({
+    loans[targetLoanIndex].catatan_admin = `Kondisi pengembalian — ${ringkasan}.${returnNote.trim() ? ' Catatan: ' + returnNote.trim() : ''}`;
+    loans[targetLoanIndex].items = targetLoan.items.map((it) => ({
       ...it,
-      kondisi_kembali: returnCondition,
+      kondisi_kembali: returnConditions[it.barang_id] || 'baik',
       catatan_kondisi: returnNote.trim()
     }));
 
     savePeminjaman(loans);
     saveBarang(updatedBarang);
     setReturnNote('');
-    setReturnCondition('baik');
+    setReturnConditions({});
     setIsReturning(false);
     setSelectedLoan(null);
     onRefresh();
@@ -289,7 +310,7 @@ export default function AdminDashboard({ currentUser, onRefresh }: AdminDashboar
                   </div>
 
                   <div className="flex items-center gap-2 sm:justify-end shrink-0" onClick={(e) => e.stopPropagation()}>
-                    {loan.status === 'menunggu' ? (
+                    {(loan.status === 'menunggu' || loan.status === 'menunggu_surat') ? (
                       <div className="flex items-center gap-2">
                         <button
                           onClick={() => { setSelectedLoan(loan); setIsRejecting(false); setIsReturning(false); }}
@@ -306,9 +327,6 @@ export default function AdminDashboard({ currentUser, onRefresh }: AdminDashboar
                       </div>
                     ) : (
                       <>
-                        {loan.status === 'menunggu_surat' && (
-                          <span className="bg-amber-50 text-amber-700 text-xs font-medium px-2.5 py-0.5 rounded-full">Menunggu Surat</span>
-                        )}
                         {loan.status === 'disetujui' && (
                           <span className="bg-teal-50 text-teal-700 text-xs font-medium px-2.5 py-0.5 rounded-full">Belum Diambil</span>
                         )}
@@ -401,7 +419,7 @@ export default function AdminDashboard({ currentUser, onRefresh }: AdminDashboar
                 </div>
 
                 {/* PENDING APPROVAL */}
-                {selectedLoan.status === 'menunggu' && (
+                {(selectedLoan.status === 'menunggu' || selectedLoan.status === 'menunggu_surat') && (
                   <div className="pt-3 border-t border-gray-100 space-y-3">
                     {isRejecting ? (
                       <div className="space-y-3">
@@ -485,19 +503,26 @@ export default function AdminDashboard({ currentUser, onRefresh }: AdminDashboar
                     {isReturning ? (
                       <div className="space-y-3 bg-blue-50/40 p-3 rounded-lg border border-blue-100">
                         <span className="block text-xs font-medium text-[#1E3A8A] uppercase tracking-wide">Formulir Catat Pengembalian</span>
-                        <div>
-                          <label htmlFor="cond" className="block text-xs font-medium text-gray-400 uppercase tracking-wide mb-1">Kondisi Fisik Barang:</label>
-                          <select
-                            id="cond"
-                            value={returnCondition}
-                            onChange={(e) => setReturnCondition(e.target.value as any)}
-                            className="w-full bg-white border border-gray-200 py-1.5 px-2 rounded-lg font-medium text-xs text-gray-800"
-                          >
-                            <option value="baik">Kondisi Baik & Bersih</option>
-                            <option value="rusak_ringan">Rusak Ringan (Bisa Diperbaiki)</option>
-                            <option value="rusak_berat">Rusak Berat (Perlu Diganti)</option>
-                            <option value="hilang">Hilang (Wajib Denda/Ganti)</option>
-                          </select>
+                        <div className="space-y-2">
+                          <label className="block text-xs font-medium text-gray-400 uppercase tracking-wide">Kondisi Fisik per Barang:</label>
+                          {selectedLoan.items.map((it) => {
+                            const nama = allBarang.find((b) => b.id === it.barang_id)?.nama || 'Barang';
+                            return (
+                              <div key={it.barang_id} className="bg-white border border-gray-200 rounded-lg p-2 space-y-1">
+                                <span className="block text-xs font-medium text-gray-700">{nama} <span className="text-gray-400">(×{it.jumlah})</span></span>
+                                <select
+                                  value={returnConditions[it.barang_id] || 'baik'}
+                                  onChange={(e) => setReturnConditions((prev) => ({ ...prev, [it.barang_id]: e.target.value as any }))}
+                                  className="w-full bg-white border border-gray-200 py-1.5 px-2 rounded-lg font-medium text-xs text-gray-800"
+                                >
+                                  <option value="baik">Kondisi Baik & Bersih</option>
+                                  <option value="rusak_ringan">Rusak Ringan (Kembali ke Stok)</option>
+                                  <option value="rusak_berat">Rusak Berat (Ditarik dari Stok)</option>
+                                  <option value="hilang">Hilang (Ditarik dari Stok)</option>
+                                </select>
+                              </div>
+                            );
+                          })}
                         </div>
                         <div>
                           <label htmlFor="ret_note" className="block text-xs font-medium text-gray-400 uppercase tracking-wide mb-1">Catatan Tambahan:</label>
@@ -527,7 +552,7 @@ export default function AdminDashboard({ currentUser, onRefresh }: AdminDashboar
                       </div>
                     ) : (
                       <button
-                        onClick={() => setIsReturning(true)}
+                        onClick={() => openReturnForm(selectedLoan)}
                         className="w-full py-2.5 bg-[#0F766E] hover:bg-[#0d635c] text-white font-medium rounded-lg cursor-pointer transition-all flex items-center justify-center gap-1.5 text-xs"
                       >
                         <RefreshCw className="w-4 h-4" />

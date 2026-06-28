@@ -24,13 +24,15 @@ export default function PeminjamanSaya({ currentUser, onSelectPeminjaman, onNavi
   const myLoans = allLoans.filter((l) => l.peminjam_id === currentUser.id);
   const filteredLoans = myLoans.filter((l) => {
     if (filter === 'semua') return true;
+    if (filter === 'menunggu') return l.status === 'menunggu' || l.status === 'menunggu_surat';
+    if (filter === 'dipinjam') return l.status === 'dipinjam' || l.status === 'terlambat';
     return l.status === filter;
   });
 
   const tabFilters: { key: typeof filter; label: string }[] = [
     { key: 'semua', label: `Semua (${myLoans.length})` },
-    { key: 'menunggu', label: `Menunggu (${myLoans.filter(l => l.status === 'menunggu').length})` },
-    { key: 'dipinjam', label: `Aktif (${myLoans.filter(l => l.status === 'dipinjam').length})` },
+    { key: 'menunggu', label: `Menunggu (${myLoans.filter(l => l.status === 'menunggu' || l.status === 'menunggu_surat').length})` },
+    { key: 'dipinjam', label: `Aktif (${myLoans.filter(l => l.status === 'dipinjam' || l.status === 'terlambat').length})` },
     { key: 'selesai', label: `Kembali (${myLoans.filter(l => l.status === 'selesai').length})` },
   ];
 

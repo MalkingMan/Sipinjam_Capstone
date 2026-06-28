@@ -1,0 +1,16 @@
+{
+  "name": "sipinjam-backend",
+  "version": "1.0.0",
+  "description": "Backend API for SIPINJAM with MySQL",
+  "main": "server.js",
+  "type": "module",
+  "scripts": {
+    "start": "node server.js",
+    "seed": "node seed.js"
+  },
+  "dependencies": {
+    "cors": "^2.8.5",
+    "express": "^4.19.2",
+    "mysql2": "^3.9.7"
+  }
+}

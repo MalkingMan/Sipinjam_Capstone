@@ -62,12 +62,26 @@ exit /b
 
 :run_server
 echo.
-echo Menjalankan Vite Development Server...
-echo Halaman SIPINJAM akan otomatis terbuka di browser Anda (http://localhost:3000).
-echo Tekan Ctrl+C di jendela ini untuk menghentikan server.
+echo Memeriksa modul Backend...
+if not exist "backend\node_modules" (
+    echo [INFO] Memasang library untuk Backend pertama kali...
+    cd backend
+    call npm install
+    cd ..
+)
+
+echo.
+echo Memulai SIPINJAM API Backend Server (Jendela Terpisah)...
+start "SIPINJAM Backend API Server" cmd /c "cd backend && title SIPINJAM API Backend Server && color 0A && echo Memulai Server Backend di Port 5000... && npm start"
+
+echo.
+echo Menjalankan Frontend Vite Development Server...
+echo Halaman SIPINJAM akan otomatis terbuka di browser Anda.
+echo Tekan Ctrl+C di jendela ini untuk menghentikan Frontend. 
+echo (Tutup jendela hitam yang satu lagi untuk mematikan Backend).
 echo.
 
-:: Menjalankan server dan otomatis membuka browser
+:: Menjalankan server frontend dan otomatis membuka browser
 call npm run dev -- --open
 
 if %errorlevel% neq 0 (

@@ -21,7 +21,7 @@ export default function PeminjamDashboard({ currentUser, onNavigate, onSelectPem
   const myLoans = currentLoans.filter((l) => l.peminjam_id === currentUser.id);
 
   const activeLoans = myLoans.filter((l) => l.status === 'dipinjam' || l.status === 'terlambat');
-  const waitingLoans = myLoans.filter((l) => l.status === 'menunggu' || l.status === 'disetujui');
+  const waitingLoans = myLoans.filter((l) => l.status === 'menunggu_surat' || l.status === 'menunggu' || l.status === 'disetujui');
   const finishedLoans = myLoans.filter((l) => l.status === 'selesai');
 
   const totalBorrowedTimes = myLoans.length;
@@ -37,6 +37,7 @@ export default function PeminjamDashboard({ currentUser, onNavigate, onSelectPem
 
   const getStepIndex = (status: string) => {
     switch (status) {
+      case 'menunggu_surat': return 0;
       case 'menunggu': return 0;
       case 'disetujui': return 1;
       case 'dipinjam': return 2;
