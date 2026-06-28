@@ -4,7 +4,7 @@
  */
 
 import { User, UserRole } from '../types';
-import { ShieldCheck, LogOut, LayoutDashboard, Boxes, ClipboardList, Info, Database, ShoppingBag } from 'lucide-react';
+import { ShieldCheck, LogOut, LayoutDashboard, Boxes, ClipboardList, Info, Database, ShoppingBag, History } from 'lucide-react';
 
 interface NavbarProps {
   currentUser: User;
@@ -115,6 +115,17 @@ export default function Navbar({ currentUser, activeTab, setActiveTab, onLogout,
                 >
                   <Database className="w-4 h-4" />
                   <span>Kelola Inventaris</span>
+                </button>
+
+                <button
+                  type="button"
+                  onClick={() => setActiveTab('admin_riwayat')}
+                  className={`flex items-center gap-1.5 px-3 py-1.5 rounded-md text-sm transition-colors cursor-pointer ${
+                    activeTab === 'admin_riwayat' ? 'bg-gray-700 text-white' : 'text-gray-400 hover:bg-gray-700/50 hover:text-gray-200'
+                  }`}
+                >
+                  <History className="w-4 h-4" />
+                  <span>Riwayat Pinjam</span>
                 </button>
 
                 <button
@@ -230,6 +241,15 @@ export default function Navbar({ currentUser, activeTab, setActiveTab, onLogout,
             >
               <Database className="w-4 h-4" />
               Inventaris
+            </button>
+            <button
+              onClick={() => setActiveTab('admin_riwayat')}
+              className={`flex flex-col items-center flex-1 py-1.5 text-[10px] font-medium gap-0.5 ${
+                activeTab === 'admin_riwayat' ? 'text-white' : 'text-gray-500'
+              }`}
+            >
+              <History className="w-4 h-4" />
+              Riwayat
             </button>
             <button
               onClick={() => setActiveTab('admin_pengaturan')}
