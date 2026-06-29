@@ -32,6 +32,8 @@ export default function AdminDashboard({ currentUser, onRefresh }: AdminDashboar
   const pendingCount = allLoans.filter((l) => l.status === 'menunggu_surat' || l.status === 'menunggu').length;
   const activeCount = allLoans.filter((l) => l.status === 'dipinjam').length;
   const overdueCount = allLoans.filter((l) => l.status === 'terlambat').length;
+  const approvedCount = allLoans.filter((l) => l.status === 'disetujui').length;
+  const doneCount = allLoans.filter((l) => l.status === 'selesai' || l.status === 'ditolak').length;
   const totalItemCount = allBarang.length;
 
   const getFilteredLoans = () => {
@@ -303,7 +305,7 @@ export default function AdminDashboard({ currentUser, onRefresh }: AdminDashboar
                   activeListTab === 'dipinjam' ? 'bg-[#334155] text-white' : 'text-gray-600 hover:bg-gray-100'
                 }`}
               >
-                Dipinjam/Terlambat ({activeCount + overdueCount})
+                Dipinjam/Terlambat ({activeCount + overdueCount + approvedCount})
               </button>
               <button
                 onClick={() => { setActiveListTab('selesai'); setSelectedLoan(null); }}
@@ -311,7 +313,7 @@ export default function AdminDashboard({ currentUser, onRefresh }: AdminDashboar
                   activeListTab === 'selesai' ? 'bg-[#334155] text-white' : 'text-gray-600 hover:bg-gray-100'
                 }`}
               >
-                Selesai/Ditolak
+                Selesai/Ditolak ({doneCount})
               </button>
             </div>
           </div>

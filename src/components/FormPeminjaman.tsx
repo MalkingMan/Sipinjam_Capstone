@@ -121,9 +121,15 @@ export default function FormPeminjaman({
 
   const handleSubmit = () => {
     if (daftarPinjam.length === 0) return;
+    // Ambil data stok TERBARU saat submit (bukan snapshot saat halaman dibuka),
+    // agar validasi akurat jika stok sudah berubah sejak form dibuka.
+    const currentBarang = getBarang();
     for (const item of daftarPinjam) {
-      const match = allBarang.find((b) => b.id === item.barang_id);
-      if (!match) { setErrorMsg("Terdapat barang yang tidak valid."); return; }
+      const match = currentBarang.find((b) => b.id === item.barang_id);
+      if (!match || match.status !== "aktif") {
+        setErrorMsg("Terdapat barang yang tidak valid atau sedang tidak tersedia. Muat ulang katalog.");
+        return;
+      }
       if (item.jumlah > match.stok_tersedia) {
         setErrorMsg(`Stok ${match.nama} tidak mencukupi. Tersedia: ${match.stok_tersedia} unit.`);
         return;
@@ -168,8 +174,8 @@ export default function FormPeminjaman({
 
     // Reservasi stok: kurangi stok_tersedia saat pengajuan dibuat agar
     // tidak terjadi over-booking oleh pengajuan lain yang masih menunggu.
-    const freshBarang = getBarang();
-    const reservedBarang = freshBarang.map((b) => {
+    // Pakai snapshot stok yang sama dengan validasi di atas (currentBarang).
+    const reservedBarang = currentBarang.map((b) => {
       const item = daftarPinjam.find((it) => it.barang_id === b.id);
       if (item) {
         return { ...b, stok_tersedia: Math.max(0, b.stok_tersedia - item.jumlah) };

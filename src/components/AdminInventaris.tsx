@@ -118,12 +118,15 @@ export default function AdminInventaris({ currentUser, onRefresh }: AdminInventa
   const handleDelete = (barangId: string) => {
     const barangTarget = barangList.find(b => b.id === barangId);
     if (!barangTarget) return;
-    const isBorrowed = allLoans.some(
-      (l) => (l.status === 'dipinjam' || l.status === 'terlambat') &&
+    // Barang terkunci jika ada transaksi aktif yang mereservasi/memakainya:
+    // menunggu_surat, menunggu, disetujui (stok direservasi) atau dipinjam/terlambat.
+    const lockedStatuses = ['menunggu_surat', 'menunggu', 'disetujui', 'dipinjam', 'terlambat'];
+    const blockingLoan = allLoans.find(
+      (l) => lockedStatuses.includes(l.status) &&
              l.items.some((it) => it.barang_id === barangId)
     );
-    if (isBorrowed) {
-      alert('Sistem Menolak Aksi: Barang ini sedang dalam masa peminjaman aktif. Ubah status menjadi "Nonaktif/Perawatan" terlebih dahulu.');
+    if (blockingLoan) {
+      alert(`Sistem Menolak Aksi: Barang ini sedang terkait transaksi aktif (${blockingLoan.kode} — ${blockingLoan.status.replace('_', ' ')}). Selesaikan/tolak transaksi tersebut, atau ubah status barang menjadi "Nonaktif/Perawatan" terlebih dahulu.`);
       return;
     }
     const response = confirm(`Hapus "${barangTarget.nama}" secara permanen?`);
