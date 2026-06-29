@@ -59,13 +59,13 @@ export default function PeminjamanSaya({ currentUser, onSelectPeminjaman, onNavi
       </div>
 
       {/* Tab Bar */}
-      <div className="flex bg-white p-1 rounded-xl border border-gray-200 max-w-lg overflow-x-auto">
+      <div className="flex bg-white p-1 rounded-2xl border border-gray-200 shadow-soft max-w-lg overflow-x-auto">
         {tabFilters.map(({ key, label }) => (
           <button
             key={key}
             onClick={() => setFilter(key)}
             className={`text-center py-1.5 text-xs font-medium rounded-lg transition-colors shrink-0 px-3.5 cursor-pointer ${
-              filter === key ? 'bg-[#1E3A8A] text-white shadow-sm' : 'text-gray-600 hover:text-gray-900'
+              filter === key ? 'bg-[#334155] text-white shadow-sm' : 'text-gray-600 hover:text-gray-900'
             }`}
           >
             {label}
@@ -75,7 +75,7 @@ export default function PeminjamanSaya({ currentUser, onSelectPeminjaman, onNavi
 
       {/* List */}
       {filteredLoans.length === 0 ? (
-        <div className="bg-white border border-gray-200 rounded-xl p-12 text-center">
+        <div className="bg-white border border-gray-200 rounded-2xl shadow-soft p-12 text-center">
           <div className="w-12 h-12 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-3 text-gray-400">
             <ClipboardList className="w-6 h-6" />
           </div>
@@ -83,7 +83,7 @@ export default function PeminjamanSaya({ currentUser, onSelectPeminjaman, onNavi
           <p className="text-xs text-gray-400 mt-1">Tidak ada pengajuan berstatus "{filter}" saat ini.</p>
           <button
             onClick={() => onNavigate('katalog')}
-            className="mt-4 bg-[#1E3A8A] hover:bg-[#1e40af] text-white font-medium text-xs px-4 py-2 rounded-lg transition cursor-pointer inline-block"
+            className="mt-4 bg-[#334155] hover:bg-[#1E293B] text-white font-medium text-xs px-4 py-2 rounded-lg transition cursor-pointer inline-block"
           >
             Lihat Katalog Barang
           </button>
@@ -94,11 +94,11 @@ export default function PeminjamanSaya({ currentUser, onSelectPeminjaman, onNavi
             <div
               key={loan.id}
               onClick={() => onSelectPeminjaman(loan)}
-              className="bg-white border border-gray-200 rounded-xl p-4 hover:border-gray-300 active:scale-[0.99] cursor-pointer transition-all flex flex-col sm:flex-row sm:items-center justify-between gap-4"
+              className="bg-white border border-gray-200 rounded-2xl shadow-soft p-4 hover:border-gray-300 active:scale-[0.99] cursor-pointer transition-all flex flex-col sm:flex-row sm:items-center justify-between gap-4"
             >
               <div className="space-y-2">
                 <div className="flex items-center gap-2">
-                  <span className="font-semibold text-sm text-[#1E3A8A]">{loan.kode}</span>
+                  <span className="font-semibold text-sm text-[#334155]">{loan.kode}</span>
                   <span className="bg-gray-100 text-gray-600 border border-gray-200 text-xs font-medium px-2 py-0.5 rounded">
                     {loan.kategori_kegiatan}
                   </span>
@@ -131,7 +131,7 @@ export default function PeminjamanSaya({ currentUser, onSelectPeminjaman, onNavi
                     <span className="bg-amber-50 text-amber-700 text-xs font-medium px-2.5 py-0.5 rounded-full">Menunggu Surat Fisik</span>
                   )}
                   {loan.status === 'disetujui' && (
-                    <span className="bg-teal-50 text-teal-700 text-xs font-medium px-2.5 py-0.5 rounded-full">Disetujui — Ambil di TU</span>
+                    <span className="bg-green-50 text-green-700 text-xs font-medium px-2.5 py-0.5 rounded-full">Disetujui — Ambil di TU</span>
                   )}
                   {loan.status === 'dipinjam' && (
                     <span className="bg-blue-50 text-blue-700 text-xs font-medium px-2.5 py-0.5 rounded-full">Sedang Dipinjam</span>
@@ -155,7 +155,7 @@ export default function PeminjamanSaya({ currentUser, onSelectPeminjaman, onNavi
                         e.stopPropagation();
                         onNavigate(`cetak_surat_${loan.id}`);
                       }}
-                      className="bg-[#1E3A8A] hover:bg-[#1e40af] text-white font-medium text-xs px-3 py-1.5 rounded-lg shrink-0 cursor-pointer transition"
+                      className="bg-[#334155] hover:bg-[#1E293B] text-white font-medium text-xs px-3 py-1.5 rounded-lg shrink-0 cursor-pointer transition"
                     >
                       🖨 Cetak Surat
                     </button>

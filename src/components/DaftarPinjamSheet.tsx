@@ -22,7 +22,7 @@ export default function DaftarPinjamSheet({ isOpen, onClose, items, onUpdateQty,
   return (
     <>
       <div className="fixed inset-0 bg-gray-900/50 z-[60]" onClick={onClose}></div>
-      <div className="fixed top-0 right-0 h-full w-[85%] max-w-sm bg-white shadow-xl z-[70] flex flex-col">
+      <div className="fixed top-0 right-0 h-full w-[85%] max-w-sm bg-white shadow-xl z-[70] flex flex-col rounded-l-2xl animate-slide-in overflow-hidden">
 
         {/* Header */}
         <div className="px-5 py-4 border-b border-gray-200 bg-white flex justify-between items-center">
@@ -84,7 +84,7 @@ export default function DaftarPinjamSheet({ isOpen, onClose, items, onUpdateQty,
                           onClick={() => {
                             if (item.jumlah < b.stok_tersedia) onUpdateQty(item.barang_id, item.jumlah + 1);
                           }}
-                          className="w-6 h-6 flex items-center justify-center hover:bg-gray-200 rounded-md transition text-[#1E3A8A]"
+                          className="w-6 h-6 flex items-center justify-center hover:bg-gray-200 rounded-md transition text-[#334155]"
                         >
                           <Plus className="w-3 h-3" />
                         </button>
@@ -108,11 +108,11 @@ export default function DaftarPinjamSheet({ isOpen, onClose, items, onUpdateQty,
           <div className="p-4 border-t border-gray-200 bg-white">
             <div className="flex justify-between items-center mb-3">
               <span className="text-xs font-medium text-gray-500 uppercase tracking-wide">Total Peminjaman:</span>
-              <span className="text-sm font-semibold text-[#1E3A8A]">{totalJenis} jenis · {totalUnit} unit</span>
+              <span className="text-sm font-semibold text-[#334155]">{totalJenis} jenis · {totalUnit} unit</span>
             </div>
             <button
               onClick={() => { onClose(); onProceed(); }}
-              className="w-full bg-[#1E3A8A] hover:bg-[#1e40af] text-white font-medium text-sm py-3 rounded-lg flex items-center justify-center gap-2 active:scale-[0.98] transition cursor-pointer"
+              className="w-full bg-[#334155] hover:bg-[#1E293B] text-white font-medium text-sm py-3 rounded-lg flex items-center justify-center gap-2 active:scale-[0.98] transition cursor-pointer"
             >
               Lanjutkan ke Form Kegiatan
             </button>

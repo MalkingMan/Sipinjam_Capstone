@@ -148,7 +148,7 @@ export default function AdminInventaris({ currentUser, onRefresh }: AdminInventa
         </div>
         <button
           onClick={openAddModal}
-          className="bg-[#1E3A8A] hover:bg-[#1e40af] text-white font-medium text-sm px-4 py-2 rounded-lg transition flex items-center gap-1.5 cursor-pointer"
+          className="bg-[#334155] hover:bg-[#1E293B] text-white font-medium text-sm px-4 py-2 rounded-lg transition flex items-center gap-1.5 cursor-pointer"
         >
           <Plus className="w-4 h-4" />
           Tambah Barang Baru
@@ -156,12 +156,12 @@ export default function AdminInventaris({ currentUser, onRefresh }: AdminInventa
       </div>
 
       {/* Filters */}
-      <div className="flex flex-col sm:flex-row gap-3 items-center justify-between bg-white border border-gray-200 p-4 rounded-xl">
+      <div className="flex flex-col sm:flex-row gap-3 items-center justify-between bg-white border border-gray-200 p-4 rounded-2xl shadow-soft">
         <div className="flex gap-2 w-full sm:w-auto flex-wrap">
           <button
             onClick={() => setSelectedKategori('semua')}
             className={`px-3.5 py-1.5 border rounded-full text-xs font-medium transition shrink-0 cursor-pointer ${
-              selectedKategori === 'semua' ? 'bg-[#1E3A8A] text-white border-[#1E3A8A]' : 'bg-white border-gray-200 text-gray-600 hover:bg-gray-50'
+              selectedKategori === 'semua' ? 'bg-[#334155] text-white border-[#334155]' : 'bg-white border-gray-200 text-gray-600 hover:bg-gray-50'
             }`}
           >
             Semua
@@ -171,7 +171,7 @@ export default function AdminInventaris({ currentUser, onRefresh }: AdminInventa
               key={kat.id}
               onClick={() => setSelectedKategori(kat.id)}
               className={`px-3.5 py-1.5 border rounded-full text-xs font-medium transition shrink-0 cursor-pointer ${
-                selectedKategori === kat.id ? 'bg-[#1E3A8A] text-white border-[#1E3A8A]' : 'bg-white border-gray-200 text-gray-600 hover:bg-gray-50'
+                selectedKategori === kat.id ? 'bg-[#334155] text-white border-[#334155]' : 'bg-white border-gray-200 text-gray-600 hover:bg-gray-50'
               }`}
             >
               {kat.nama}
@@ -193,7 +193,7 @@ export default function AdminInventaris({ currentUser, onRefresh }: AdminInventa
       </div>
 
       {/* Table */}
-      <div className="bg-white border border-gray-200 rounded-xl overflow-x-auto">
+      <div className="bg-white border border-gray-200 rounded-2xl shadow-soft overflow-x-auto">
         <table className="w-full text-left border-collapse text-sm">
           <thead className="bg-gray-50 border-b border-gray-200 text-gray-500 text-xs font-medium uppercase tracking-wide">
             <tr>
@@ -222,7 +222,7 @@ export default function AdminInventaris({ currentUser, onRefresh }: AdminInventa
                       />
                     </div>
                   </td>
-                  <td className="p-3 font-medium text-[#1E3A8A] text-xs uppercase">{item.kode}</td>
+                  <td className="p-3 font-medium text-[#334155] text-xs uppercase">{item.kode}</td>
                   <td className="p-3">
                     <span className="font-medium text-gray-900 block text-sm leading-tight">{item.nama}</span>
                     <span className="text-xs text-gray-400 mt-0.5 block">
@@ -230,7 +230,7 @@ export default function AdminInventaris({ currentUser, onRefresh }: AdminInventa
                     </span>
                   </td>
                   <td className="p-3 text-center">
-                    <span className={`font-bold text-sm ${available === 0 ? 'text-[#B91C1C]' : 'text-[#0F766E]'}`}>
+                    <span className={`font-bold text-sm ${available === 0 ? 'text-[#B91C1C]' : 'text-[#16A34A]'}`}>
                       {available} / {total}
                     </span>
                     <span className="text-[10px] text-gray-400 block font-medium uppercase tracking-wide mt-0.5">Unit</span>
@@ -240,7 +240,7 @@ export default function AdminInventaris({ currentUser, onRefresh }: AdminInventa
                   </td>
                   <td className="p-3">
                     {item.status === 'aktif' && (
-                      <span className="bg-teal-50 text-teal-700 text-xs font-medium px-2.5 py-0.5 rounded-full">Aktif</span>
+                      <span className="bg-green-50 text-green-700 text-xs font-medium px-2.5 py-0.5 rounded-full">Aktif</span>
                     )}
                     {item.status === 'perawatan' && (
                       <span className="bg-amber-50 text-amber-700 text-xs font-medium px-2.5 py-0.5 rounded-full">Servis</span>
@@ -252,7 +252,7 @@ export default function AdminInventaris({ currentUser, onRefresh }: AdminInventa
                   <td className="p-3 text-right pr-4 space-x-1.5">
                     <button
                       onClick={() => openEditModal(item)}
-                      className="p-1.5 border border-gray-200 rounded-md hover:bg-gray-50 text-gray-500 hover:text-[#1E3A8A] transition cursor-pointer inline-flex items-center"
+                      className="p-1.5 border border-gray-200 rounded-md hover:bg-gray-50 text-gray-500 hover:text-[#334155] transition cursor-pointer inline-flex items-center"
                       title="Edit"
                     >
                       <Edit className="w-3.5 h-3.5" />
@@ -275,7 +275,7 @@ export default function AdminInventaris({ currentUser, onRefresh }: AdminInventa
       {/* Modal */}
       {isModalOpen && (
         <div className="fixed inset-0 bg-gray-900/50 flex items-center justify-center p-4 z-50">
-          <div className="bg-white rounded-xl border border-gray-200 w-full max-w-lg overflow-hidden flex flex-col shadow-lg animate-scale-up">
+          <div className="bg-white rounded-2xl border border-gray-200 w-full max-w-lg overflow-hidden flex flex-col shadow-lg animate-scale-up">
 
             {/* Modal Header */}
             <div className="px-5 py-4 border-b border-gray-100 flex justify-between items-center bg-white">
@@ -468,7 +468,7 @@ export default function AdminInventaris({ currentUser, onRefresh }: AdminInventa
                 </button>
                 <button
                   type="submit"
-                  className="py-2 px-5 bg-[#1E3A8A] hover:bg-[#1e40af] text-white rounded-lg text-sm font-medium transition cursor-pointer"
+                  className="py-2 px-5 bg-[#334155] hover:bg-[#1E293B] text-white rounded-lg text-sm font-medium transition cursor-pointer"
                 >
                   Simpan SKU
                 </button>

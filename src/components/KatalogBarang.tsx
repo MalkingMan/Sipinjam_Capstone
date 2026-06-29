@@ -106,7 +106,7 @@ export default function KatalogBarang({ daftarPinjam = [], onStartBorrow, onAddD
       <div className="bg-gray-50 p-4 rounded-xl border border-gray-200 mt-4">
         <div className="flex justify-between items-center mb-3">
           <span className="text-xs font-medium text-gray-700 flex items-center gap-1">
-            <CalendarCheck className="w-4 h-4 text-[#1E3A8A]" />
+            <CalendarCheck className="w-4 h-4 text-[#334155]" />
             Kalender Booking: Juni 2026
           </span>
           <div className="flex gap-2 text-[10px] font-medium">
@@ -150,13 +150,13 @@ export default function KatalogBarang({ daftarPinjam = [], onStartBorrow, onAddD
         <div className="space-y-4">
           <button
             onClick={() => setSelectedBarangDetail(null)}
-            className="flex items-center gap-1 text-xs font-medium text-[#1E3A8A] hover:underline cursor-pointer"
+            className="flex items-center gap-1 text-xs font-medium text-[#334155] hover:underline cursor-pointer"
           >
             <ArrowLeft className="w-4 h-4" />
             Kembali ke Semua Barang
           </button>
 
-          <div className="bg-white rounded-xl border border-gray-200 overflow-hidden grid grid-cols-1 md:grid-cols-2 gap-6 p-6">
+          <div className="bg-white rounded-2xl border border-gray-200 shadow-soft overflow-hidden grid grid-cols-1 md:grid-cols-2 gap-6 p-6">
             {/* Left: Photo */}
             <div className="space-y-4">
               <div className="aspect-video md:aspect-[4/3] rounded-xl overflow-hidden bg-gray-100 relative border border-gray-200">
@@ -168,12 +168,12 @@ export default function KatalogBarang({ daftarPinjam = [], onStartBorrow, onAddD
                   onError={(e) => { e.currentTarget.src = 'https://placehold.co/600x400/f9fafb/6b7280?text=Tidak+Ada+Gambar'; }}
                 />
                 {isAdminPreview && (
-                  <span className="absolute top-3 left-3 bg-[#1E3A8A] text-white text-xs font-medium px-2.5 py-1 rounded-full">
+                  <span className="absolute top-3 left-3 bg-[#334155] text-white text-xs font-medium px-2.5 py-1 rounded-full">
                     {selectedBarangDetail.kode}
                   </span>
                 )}
                 {selectedBarangDetail.stok_tersedia > 0 ? (
-                  <span className="absolute bottom-3 right-3 bg-teal-50 text-teal-700 text-xs font-medium px-3 py-1 rounded-full border border-teal-200 flex items-center gap-1">
+                  <span className="absolute bottom-3 right-3 bg-green-50 text-green-700 text-xs font-medium px-3 py-1 rounded-full border border-green-200 flex items-center gap-1">
                     <CheckCircle className="w-3.5 h-3.5" />
                     Tersedia ({selectedBarangDetail.stok_tersedia} unit)
                   </span>
@@ -244,7 +244,7 @@ export default function KatalogBarang({ daftarPinjam = [], onStartBorrow, onAddD
                       <button
                         onClick={() => handleUpdateQty(selectedBarangDetail.id, 1, selectedBarangDetail.stok_tersedia)}
                         disabled={selectedBarangDetail.stok_tersedia <= 0}
-                        className="p-1.5 hover:bg-gray-200 rounded-md disabled:opacity-50 text-[#1E3A8A]"
+                        className="p-1.5 hover:bg-gray-200 rounded-md disabled:opacity-50 text-[#334155]"
                       >
                         <Plus className="w-3.5 h-3.5" />
                       </button>
@@ -259,7 +259,7 @@ export default function KatalogBarang({ daftarPinjam = [], onStartBorrow, onAddD
                         }
                       }}
                       disabled={selectedBarangDetail.stok_tersedia <= 0}
-                      className="flex-1 bg-[#1E3A8A] hover:bg-[#1e40af] text-white text-sm font-medium py-2.5 rounded-lg transition-all disabled:opacity-40 disabled:cursor-not-allowed cursor-pointer"
+                      className="flex-1 bg-[#334155] hover:bg-[#1E293B] text-white text-sm font-medium py-2.5 rounded-lg transition-all disabled:opacity-40 disabled:cursor-not-allowed cursor-pointer"
                     >
                       + Tambah ke Daftar
                     </button>
@@ -301,7 +301,7 @@ export default function KatalogBarang({ daftarPinjam = [], onStartBorrow, onAddD
             <button
               onClick={() => setSelectedKategori('semua')}
               className={`px-3.5 py-1.5 rounded-full text-xs font-medium shrink-0 transition-all border cursor-pointer ${selectedKategori === 'semua'
-                ? 'bg-[#1E3A8A] text-white border-[#1E3A8A]'
+                ? 'bg-[#334155] text-white border-[#334155]'
                 : 'bg-white border-gray-200 text-gray-600 hover:bg-gray-50'
                 }`}
             >
@@ -312,7 +312,7 @@ export default function KatalogBarang({ daftarPinjam = [], onStartBorrow, onAddD
                 key={kat.id}
                 onClick={() => setSelectedKategori(kat.id)}
                 className={`px-3.5 py-1.5 rounded-full text-xs font-medium shrink-0 transition-all border cursor-pointer ${selectedKategori === kat.id
-                  ? 'bg-[#1E3A8A] text-white border-[#1E3A8A]'
+                  ? 'bg-[#334155] text-white border-[#334155]'
                   : 'bg-white border-gray-200 text-gray-600 hover:bg-gray-50'
                   }`}
               >
@@ -343,7 +343,7 @@ export default function KatalogBarang({ daftarPinjam = [], onStartBorrow, onAddD
                 return (
                   <div
                     key={barang.id}
-                    className="bg-white rounded-xl border border-gray-200 hover:border-gray-300 transition-all flex flex-col justify-between overflow-hidden"
+                    className="bg-white rounded-2xl border border-gray-200 shadow-soft hover:shadow-card hover:border-gray-300 transition-all flex flex-col justify-between overflow-hidden"
                   >
                     <div>
                       <div className="aspect-[4/3] bg-gray-100 relative group overflow-hidden border-b border-gray-100">
@@ -355,12 +355,12 @@ export default function KatalogBarang({ daftarPinjam = [], onStartBorrow, onAddD
                           onError={(e) => { e.currentTarget.src = 'https://placehold.co/400x300/f9fafb/6b7280?text=Tidak+Ada+Gambar'; }}
                         />
                         {isAdminPreview && (
-                          <span className="absolute top-2 left-2 bg-[#1E3A8A] text-white text-xs font-medium px-2 py-0.5 rounded-full">
+                          <span className="absolute top-2 left-2 bg-[#334155] text-white text-xs font-medium px-2 py-0.5 rounded-full">
                             {barang.kode}
                           </span>
                         )}
                         {isAvailable ? (
-                          <span className="absolute top-2 right-2 bg-teal-50 text-teal-700 text-xs font-medium px-2 py-0.5 rounded-full border border-teal-200">
+                          <span className="absolute top-2 right-2 bg-green-50 text-green-700 text-xs font-medium px-2 py-0.5 rounded-full border border-green-200">
                             Sisa: {barang.stok_tersedia}
                           </span>
                         ) : (
@@ -386,7 +386,7 @@ export default function KatalogBarang({ daftarPinjam = [], onStartBorrow, onAddD
                       <div className="flex justify-between items-center">
                         <button
                           onClick={() => setSelectedBarangDetail(barang)}
-                          className="text-xs font-medium text-[#1E3A8A] hover:underline cursor-pointer"
+                          className="text-xs font-medium text-[#334155] hover:underline cursor-pointer"
                         >
                           Info & Jadwal →
                         </button>
@@ -405,7 +405,7 @@ export default function KatalogBarang({ daftarPinjam = [], onStartBorrow, onAddD
                             <button
                               onClick={() => handleUpdateQty(barang.id, 1, barang.stok_tersedia)}
                               disabled={!isAvailable}
-                              className="p-1 hover:bg-gray-200 rounded-md disabled:opacity-50 text-[#1E3A8A]"
+                              className="p-1 hover:bg-gray-200 rounded-md disabled:opacity-50 text-[#334155]"
                             >
                               <Plus className="w-3 h-3" />
                             </button>
@@ -413,7 +413,7 @@ export default function KatalogBarang({ daftarPinjam = [], onStartBorrow, onAddD
                           <button
                             onClick={() => handleAddSubmit(barang)}
                             disabled={!isAvailable}
-                            className="flex-1 bg-[#1E3A8A] hover:bg-[#1e40af] text-white text-xs font-medium px-3 py-1.5 rounded-lg transition cursor-pointer select-none active:scale-95 disabled:bg-gray-200 disabled:text-gray-400 disabled:cursor-not-allowed"
+                            className="flex-1 bg-[#334155] hover:bg-[#1E293B] text-white text-xs font-medium px-3 py-1.5 rounded-lg transition cursor-pointer select-none active:scale-95 disabled:bg-gray-200 disabled:text-gray-400 disabled:cursor-not-allowed"
                           >
                             + Tambah ke Daftar
                           </button>
@@ -439,7 +439,7 @@ export default function KatalogBarang({ daftarPinjam = [], onStartBorrow, onAddD
             <div className="flex flex-col gap-2">
               <button
                 onClick={() => handleResolveConflict('add')}
-                className="w-full bg-[#1E3A8A] hover:bg-[#1e40af] text-white py-2.5 rounded-lg text-sm font-medium cursor-pointer"
+                className="w-full bg-[#334155] hover:bg-[#1E293B] text-white py-2.5 rounded-lg text-sm font-medium cursor-pointer"
               >
                 + Tambah Lagi (Total ×{Math.min(conflictDialog.barang.stok_tersedia, conflictDialog.existingQty + conflictDialog.qty)})
               </button>

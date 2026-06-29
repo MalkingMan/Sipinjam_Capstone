@@ -52,19 +52,20 @@ export default function PeminjamDashboard({ currentUser, onNavigate, onSelectPem
     <div id="peminjam_dashboard" className="p-4 md:p-6 max-w-7xl mx-auto space-y-6 font-sans">
 
       {/* Welcome Banner */}
-      <div className="bg-[#1E3A8A] rounded-xl py-5 px-5 md:px-6 text-white flex flex-wrap justify-between items-center gap-4 relative overflow-hidden">
-        <div className="absolute top-0 right-0 w-36 h-36 bg-white/5 rounded-full translate-x-12 -translate-y-12 pointer-events-none"></div>
+      <div className="bg-linear-to-br from-slate-700 to-slate-900 rounded-2xl py-6 px-5 md:px-7 text-white flex flex-wrap justify-between items-center gap-4 relative overflow-hidden shadow-card">
+        <div className="absolute top-0 right-0 w-40 h-40 bg-white/10 rounded-full translate-x-14 -translate-y-14 pointer-events-none"></div>
+        <div className="absolute bottom-0 right-24 w-24 h-24 bg-white/5 rounded-full translate-y-12 pointer-events-none"></div>
         <div className="relative">
           <h2 className="text-xl font-semibold text-white leading-none">
             Halo, {currentUser.nama}!
           </h2>
-          <p className="text-xs text-blue-200 mt-1.5 max-w-lg leading-relaxed">
+          <p className="text-xs text-slate-200 mt-1.5 max-w-lg leading-relaxed">
             Selamat datang di SIPINJAM SMAN 1 Sentolo. Cari barang, ajukan peminjaman, dan pantau status pengajuan dengan mudah.
           </p>
         </div>
         <button
           onClick={() => onNavigate('katalog')}
-          className="bg-white hover:bg-blue-50 text-[#1E3A8A] font-medium text-sm px-4 py-2 rounded-lg flex items-center gap-1.5 transition-all active:scale-95 cursor-pointer"
+          className="bg-white hover:bg-blue-50 text-[#334155] font-medium text-sm px-4 py-2 rounded-lg flex items-center gap-1.5 transition-all active:scale-95 cursor-pointer"
         >
           <Plus className="w-4 h-4" />
           Mulai Pinjam Barang
@@ -73,7 +74,7 @@ export default function PeminjamDashboard({ currentUser, onNavigate, onSelectPem
 
       {/* KPI Cards */}
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-        <div className="bg-white rounded-xl border border-gray-200 p-4 flex items-center justify-between" style={{ borderTop: '2px solid #F59E0B' }}>
+        <div className="bg-white rounded-2xl border border-gray-200 shadow-soft p-4 flex items-center justify-between" style={{ borderTop: '2px solid #F59E0B' }}>
           <div>
             <p className="text-xs font-medium text-gray-400 uppercase tracking-wide">Menunggu Approval</p>
             <p className={`text-3xl font-bold mt-1 leading-none ${waitingLoans.length > 0 ? 'text-[#B45309]' : 'text-gray-400'}`}>{waitingLoans.length}</p>
@@ -84,24 +85,24 @@ export default function PeminjamDashboard({ currentUser, onNavigate, onSelectPem
           </div>
         </div>
 
-        <div className="bg-white rounded-xl border border-gray-200 p-4 flex items-center justify-between" style={{ borderTop: '2px solid #1E3A8A' }}>
+        <div className="bg-white rounded-2xl border border-gray-200 shadow-soft p-4 flex items-center justify-between" style={{ borderTop: '2px solid #334155' }}>
           <div>
             <p className="text-xs font-medium text-gray-400 uppercase tracking-wide">Sedang Dipinjam</p>
-            <p className={`text-3xl font-bold mt-1 leading-none ${activeLoans.length > 0 ? 'text-[#1E3A8A]' : 'text-gray-400'}`}>{activeLoans.length}</p>
+            <p className={`text-3xl font-bold mt-1 leading-none ${activeLoans.length > 0 ? 'text-[#334155]' : 'text-gray-400'}`}>{activeLoans.length}</p>
             <p className="text-xs text-gray-400 mt-1.5">Wajib dijaga & dikembalikan tepat</p>
           </div>
-          <div className={`w-11 h-11 rounded-lg flex items-center justify-center ${activeLoans.length > 0 ? 'bg-blue-50 text-[#1E3A8A]' : 'bg-gray-50 text-gray-400'}`}>
+          <div className={`w-11 h-11 rounded-lg flex items-center justify-center ${activeLoans.length > 0 ? 'bg-blue-50 text-[#334155]' : 'bg-gray-50 text-gray-400'}`}>
             <Boxes className="w-5 h-5" />
           </div>
         </div>
 
-        <div className="bg-white rounded-xl border border-gray-200 p-4 flex items-center justify-between" style={{ borderTop: '2px solid #0F766E' }}>
+        <div className="bg-white rounded-2xl border border-gray-200 shadow-soft p-4 flex items-center justify-between" style={{ borderTop: '2px solid #16A34A' }}>
           <div>
             <p className="text-xs font-medium text-gray-400 uppercase tracking-wide">Total Riwayat</p>
-            <p className={`text-3xl font-bold mt-1 leading-none ${finishedLoans.length > 0 ? 'text-[#0F766E]' : 'text-gray-400'}`}>{finishedLoans.length}</p>
+            <p className={`text-3xl font-bold mt-1 leading-none ${finishedLoans.length > 0 ? 'text-[#16A34A]' : 'text-gray-400'}`}>{finishedLoans.length}</p>
             <p className="text-xs text-gray-400 mt-1.5">Transaksi peminjaman selesai</p>
           </div>
-          <div className={`w-11 h-11 rounded-lg flex items-center justify-center ${finishedLoans.length > 0 ? 'bg-teal-50 text-[#0F766E]' : 'bg-gray-50 text-gray-400'}`}>
+          <div className={`w-11 h-11 rounded-lg flex items-center justify-center ${finishedLoans.length > 0 ? 'bg-green-50 text-[#16A34A]' : 'bg-gray-50 text-gray-400'}`}>
             <CheckCircle2 className="w-5 h-5" />
           </div>
         </div>
@@ -119,7 +120,7 @@ export default function PeminjamDashboard({ currentUser, onNavigate, onSelectPem
             </h3>
             <button
               onClick={() => onNavigate('peminjaman_saya')}
-              className="text-xs font-medium text-[#1E3A8A] hover:underline cursor-pointer"
+              className="text-xs font-medium text-[#334155] hover:underline cursor-pointer"
             >
               Lihat Semua →
             </button>
@@ -136,7 +137,7 @@ export default function PeminjamDashboard({ currentUser, onNavigate, onSelectPem
               </p>
               <button
                 onClick={() => onNavigate('katalog')}
-                className="mt-4 bg-[#1E3A8A] hover:bg-[#1e40af] text-white font-medium text-xs py-2 px-4 rounded-lg transition-all cursor-pointer"
+                className="mt-4 bg-[#334155] hover:bg-[#1E293B] text-white font-medium text-xs py-2 px-4 rounded-lg transition-all cursor-pointer"
               >
                 Telusuri Katalog
               </button>
@@ -153,7 +154,7 @@ export default function PeminjamDashboard({ currentUser, onNavigate, onSelectPem
                     <div className="flex justify-between items-start gap-4 pb-3 border-b border-gray-100">
                       <div>
                         <div className="flex items-center gap-2">
-                          <span className="font-semibold text-sm text-[#1E3A8A]">{loan.kode}</span>
+                          <span className="font-semibold text-sm text-[#334155]">{loan.kode}</span>
                           <span className="text-xs text-gray-400">· {loan.tgl_pengajuan}</span>
                         </div>
                         <p className="text-xs text-gray-500 mt-0.5 line-clamp-1">
@@ -169,7 +170,7 @@ export default function PeminjamDashboard({ currentUser, onNavigate, onSelectPem
                         <span className="bg-amber-50 text-amber-700 text-xs font-medium px-2.5 py-0.5 rounded-full whitespace-nowrap">Menunggu Surat</span>
                       )}
                       {loan.status === 'disetujui' && (
-                        <span className="bg-teal-50 text-teal-700 text-xs font-medium px-2.5 py-0.5 rounded-full whitespace-nowrap">Disetujui</span>
+                        <span className="bg-green-50 text-green-700 text-xs font-medium px-2.5 py-0.5 rounded-full whitespace-nowrap">Disetujui</span>
                       )}
                       {loan.status === 'dipinjam' && (
                         <span className="bg-blue-50 text-blue-700 text-xs font-medium px-2.5 py-0.5 rounded-full whitespace-nowrap">Dipinjam</span>
@@ -210,7 +211,7 @@ export default function PeminjamDashboard({ currentUser, onNavigate, onSelectPem
                         <div className="flex items-center justify-between relative px-4">
                           <div className="absolute left-6 right-6 top-2 h-0.5 bg-gray-200 -z-10">
                             <div
-                              className="h-full bg-[#0F766E] transition-all duration-300"
+                              className="h-full bg-[#16A34A] transition-all duration-300"
                               style={{ width: `${(stepIdx / (steps.length - 1)) * 100}%` }}
                             ></div>
                           </div>
@@ -222,13 +223,13 @@ export default function PeminjamDashboard({ currentUser, onNavigate, onSelectPem
                                 <div
                                   className={`w-4 h-4 rounded-full flex items-center justify-center border text-[8px] font-medium transition-all ${
                                     isCompleted
-                                      ? 'bg-[#0F766E] border-[#0F766E] text-white'
+                                      ? 'bg-[#16A34A] border-[#16A34A] text-white'
                                       : 'bg-white border-gray-300 text-gray-400'
-                                  } ${isActive ? 'ring-2 ring-teal-100' : ''}`}
+                                  } ${isActive ? 'ring-2 ring-green-100' : ''}`}
                                 >
                                   {isCompleted ? '✓' : sIdx + 1}
                                 </div>
-                                <span className={`text-[10px] font-medium mt-1 ${isCompleted ? 'text-[#0F766E]' : 'text-gray-400'}`}>
+                                <span className={`text-[10px] font-medium mt-1 ${isCompleted ? 'text-[#16A34A]' : 'text-gray-400'}`}>
                                   {step}
                                 </span>
                               </div>
@@ -250,7 +251,7 @@ export default function PeminjamDashboard({ currentUser, onNavigate, onSelectPem
                     )}
 
                     {loan.status === 'disetujui' && (
-                      <div className="mt-3 p-2.5 bg-teal-50 text-teal-700 rounded-lg text-xs border border-teal-100 flex gap-1.5 items-start">
+                      <div className="mt-3 p-2.5 bg-green-50 text-green-700 rounded-lg text-xs border border-green-100 flex gap-1.5 items-start">
                         <CheckCircle2 className="w-4 h-4 shrink-0 mt-0.5" />
                         <div>
                           <p className="font-medium">Barang siap diambil di Ruang TU!</p>
@@ -273,7 +274,7 @@ export default function PeminjamDashboard({ currentUser, onNavigate, onSelectPem
                     <div className="mt-3 pt-2.5 border-t border-gray-100 flex justify-end">
                       <button
                         onClick={() => onSelectPeminjaman(loan)}
-                        className="text-xs font-medium text-[#1E3A8A] border border-gray-200 px-3 py-1.5 rounded-lg hover:bg-gray-50 transition-colors cursor-pointer"
+                        className="text-xs font-medium text-[#334155] border border-gray-200 px-3 py-1.5 rounded-lg hover:bg-gray-50 transition-colors cursor-pointer"
                       >
                         Info Selengkapnya
                       </button>
@@ -291,7 +292,7 @@ export default function PeminjamDashboard({ currentUser, onNavigate, onSelectPem
           {currentUser.role === 'guru' && (
             <div className="bg-white border border-gray-200 rounded-xl p-4 space-y-3">
               <div className="flex items-center gap-2 pb-2 border-b border-gray-100">
-                <TrendingUp className="w-4 h-4 text-[#0F766E]" />
+                <TrendingUp className="w-4 h-4 text-[#16A34A]" />
                 <h4 className="font-semibold text-gray-900 text-sm">Laporan Pribadi Guru</h4>
               </div>
               <div className="space-y-2">
@@ -310,7 +311,7 @@ export default function PeminjamDashboard({ currentUser, onNavigate, onSelectPem
                   <span className="text-xs text-gray-400">Paling sering dipinjam</span>
                 </div>
               </div>
-              <div className="p-3 bg-teal-50 border border-teal-100 rounded-lg text-xs text-teal-700">
+              <div className="p-3 bg-green-50 border border-green-100 rounded-lg text-xs text-green-700">
                 <p className="font-medium">Hak Prioritas Peminjam Guru:</p>
                 <p className="text-gray-600 mt-1">Peminjaman oleh Guru mendapatkan prioritas persetujuan untuk kebutuhan darurat pembelajaran.</p>
               </div>

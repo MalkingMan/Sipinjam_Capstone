@@ -1,3 +1,4 @@
+
 import React from "react";
 import { getPengaturanSurat } from "../data/db";
 import { ArrowLeft, Printer } from "lucide-react";
@@ -12,7 +13,7 @@ export default function CetakTemplateKosongView({ onBack }: { onBack: () => void
   return (
     <div className="bg-[#E5E7EB] min-h-screen relative font-['Times_New_Roman',_Times,_serif] text-[#1a1a1a] pb-10">
       {/* Toolbar for Preview */}
-      <div className="print:hidden fixed top-4 right-4 bg-[#1E3A8A] text-white px-4 py-2.5 rounded-lg shadow-xl flex gap-3 items-center z-50 font-sans text-xs">
+      <div className="print:hidden fixed top-4 right-4 bg-[#334155] text-white px-4 py-2.5 rounded-lg shadow-xl flex gap-3 items-center z-50 font-sans text-xs">
         <button
           onClick={onBack}
           className="flex items-center gap-1.5 hover:bg-white/10 px-2 py-1.5 rounded transition cursor-pointer"
@@ -23,7 +24,7 @@ export default function CetakTemplateKosongView({ onBack }: { onBack: () => void
         <span className="font-bold">Template Surat Blanko (Kosong)</span>
         <button
           onClick={handlePrint}
-          className="bg-white text-[#1E3A8A] hover:bg-slate-100 flex items-center gap-1.5 px-3 py-1.5 rounded shadow-sm transition font-bold cursor-pointer"
+          className="bg-white text-[#334155] hover:bg-slate-100 flex items-center gap-1.5 px-3 py-1.5 rounded shadow-sm transition font-bold cursor-pointer"
         >
           <Printer className="w-4 h-4" /> Cetak / Simpan PDF
         </button>

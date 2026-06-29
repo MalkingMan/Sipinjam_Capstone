@@ -189,7 +189,7 @@ export default function AdminDashboard({ currentUser, onRefresh }: AdminDashboar
 
       {/* KPI Cards */}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-        <div className="bg-white rounded-xl border border-gray-200 p-4" style={{ borderTop: '2px solid #F59E0B' }}>
+        <div className="bg-white rounded-2xl border border-gray-200 shadow-soft p-4" style={{ borderTop: '2px solid #F59E0B' }}>
           <p className="text-xs font-medium text-gray-400 uppercase tracking-wide">Menunggu Approval</p>
           <div className="flex items-center justify-between mt-3">
             <span className={`text-3xl font-bold leading-none ${pendingCount > 0 ? 'text-[#B45309]' : 'text-gray-400'}`}>{pendingCount}</span>
@@ -199,17 +199,17 @@ export default function AdminDashboard({ currentUser, onRefresh }: AdminDashboar
           </div>
         </div>
 
-        <div className="bg-white rounded-xl border border-gray-200 p-4" style={{ borderTop: '2px solid #1E3A8A' }}>
+        <div className="bg-white rounded-2xl border border-gray-200 shadow-soft p-4" style={{ borderTop: '2px solid #334155' }}>
           <p className="text-xs font-medium text-gray-400 uppercase tracking-wide">Aktif Dipinjam</p>
           <div className="flex items-center justify-between mt-3">
-            <span className={`text-3xl font-bold leading-none ${activeCount > 0 ? 'text-[#1E3A8A]' : 'text-gray-400'}`}>{activeCount}</span>
-            <span className={`p-2 rounded-lg ${activeCount > 0 ? 'bg-blue-50 text-[#1E3A8A]' : 'bg-gray-50 text-gray-400'}`}>
+            <span className={`text-3xl font-bold leading-none ${activeCount > 0 ? 'text-[#334155]' : 'text-gray-400'}`}>{activeCount}</span>
+            <span className={`p-2 rounded-lg ${activeCount > 0 ? 'bg-blue-50 text-[#334155]' : 'bg-gray-50 text-gray-400'}`}>
               <Boxes className="w-4 h-4" />
             </span>
           </div>
         </div>
 
-        <div className="bg-white rounded-xl border border-gray-200 p-4" style={{ borderTop: `2px solid ${overdueCount > 0 ? '#B91C1C' : '#E5E7EB'}` }}>
+        <div className="bg-white rounded-2xl border border-gray-200 shadow-soft p-4" style={{ borderTop: `2px solid ${overdueCount > 0 ? '#B91C1C' : '#E5E7EB'}` }}>
           <p className="text-xs font-medium text-gray-400 uppercase tracking-wide">Terlambat Kembali</p>
           <div className="flex items-center justify-between mt-3">
             <span className={`text-3xl font-bold leading-none ${overdueCount > 0 ? 'text-[#B91C1C]' : 'text-gray-400'}`}>{overdueCount}</span>
@@ -219,11 +219,11 @@ export default function AdminDashboard({ currentUser, onRefresh }: AdminDashboar
           </div>
         </div>
 
-        <div className="bg-white rounded-xl border border-gray-200 p-4" style={{ borderTop: '2px solid #0F766E' }}>
+        <div className="bg-white rounded-2xl border border-gray-200 shadow-soft p-4" style={{ borderTop: '2px solid #16A34A' }}>
           <p className="text-xs font-medium text-gray-400 uppercase tracking-wide">Total Ragam Barang</p>
           <div className="flex items-center justify-between mt-3">
-            <span className={`text-3xl font-bold leading-none ${totalItemCount > 0 ? 'text-[#0F766E]' : 'text-gray-400'}`}>{totalItemCount}</span>
-            <span className={`p-2 rounded-lg ${totalItemCount > 0 ? 'bg-teal-50 text-[#0F766E]' : 'bg-gray-50 text-gray-400'}`}>
+            <span className={`text-3xl font-bold leading-none ${totalItemCount > 0 ? 'text-[#16A34A]' : 'text-gray-400'}`}>{totalItemCount}</span>
+            <span className={`p-2 rounded-lg ${totalItemCount > 0 ? 'bg-green-50 text-[#16A34A]' : 'bg-gray-50 text-gray-400'}`}>
               <Database className="w-4 h-4" />
             </span>
           </div>
@@ -237,13 +237,13 @@ export default function AdminDashboard({ currentUser, onRefresh }: AdminDashboar
         <div className="lg:col-span-2 space-y-4">
 
           {/* Tab bar */}
-          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 bg-white p-2 rounded-xl border border-gray-200">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 bg-white p-2 rounded-2xl border border-gray-200 shadow-soft">
             <span className="text-xs font-medium text-gray-500 px-2">Transaksi:</span>
             <div className="flex gap-1 overflow-x-auto">
               <button
                 onClick={() => { setActiveListTab('menunggu'); setSelectedLoan(null); }}
                 className={`text-xs font-medium py-1.5 px-3 rounded-lg cursor-pointer transition-colors ${
-                  activeListTab === 'menunggu' ? 'bg-[#1E3A8A] text-white' : 'text-gray-600 hover:bg-gray-100'
+                  activeListTab === 'menunggu' ? 'bg-[#334155] text-white' : 'text-gray-600 hover:bg-gray-100'
                 }`}
               >
                 Menunggu ({pendingCount})
@@ -251,7 +251,7 @@ export default function AdminDashboard({ currentUser, onRefresh }: AdminDashboar
               <button
                 onClick={() => { setActiveListTab('dipinjam'); setSelectedLoan(null); }}
                 className={`text-xs font-medium py-1.5 px-3 rounded-lg cursor-pointer transition-colors ${
-                  activeListTab === 'dipinjam' ? 'bg-[#1E3A8A] text-white' : 'text-gray-600 hover:bg-gray-100'
+                  activeListTab === 'dipinjam' ? 'bg-[#334155] text-white' : 'text-gray-600 hover:bg-gray-100'
                 }`}
               >
                 Dipinjam/Terlambat ({activeCount + overdueCount})
@@ -259,7 +259,7 @@ export default function AdminDashboard({ currentUser, onRefresh }: AdminDashboar
               <button
                 onClick={() => { setActiveListTab('selesai'); setSelectedLoan(null); }}
                 className={`text-xs font-medium py-1.5 px-3 rounded-lg cursor-pointer transition-colors ${
-                  activeListTab === 'selesai' ? 'bg-[#1E3A8A] text-white' : 'text-gray-600 hover:bg-gray-100'
+                  activeListTab === 'selesai' ? 'bg-[#334155] text-white' : 'text-gray-600 hover:bg-gray-100'
                 }`}
               >
                 Selesai/Ditolak
@@ -277,7 +277,7 @@ export default function AdminDashboard({ currentUser, onRefresh }: AdminDashboar
               <p className="text-xs text-gray-400 mt-1">Daftar kosong untuk filter saat ini.</p>
             </div>
           ) : (
-            <div className="bg-white rounded-xl border border-gray-200 overflow-hidden">
+            <div className="bg-white rounded-2xl border border-gray-200 shadow-soft overflow-hidden">
               {filteredLoans.map((loan) => (
                 <div
                   key={loan.id}
@@ -320,7 +320,7 @@ export default function AdminDashboard({ currentUser, onRefresh }: AdminDashboar
                         </button>
                         <button
                           onClick={() => handleApprove(loan.id)}
-                          className="bg-[#0F766E] hover:bg-[#0d635c] text-white font-medium text-xs px-3 py-1.5 rounded-lg transition-all cursor-pointer"
+                          className="bg-[#16A34A] hover:bg-[#15803D] text-white font-medium text-xs px-3 py-1.5 rounded-lg transition-all cursor-pointer"
                         >
                           Setujui
                         </button>
@@ -328,7 +328,7 @@ export default function AdminDashboard({ currentUser, onRefresh }: AdminDashboar
                     ) : (
                       <>
                         {loan.status === 'disetujui' && (
-                          <span className="bg-teal-50 text-teal-700 text-xs font-medium px-2.5 py-0.5 rounded-full">Belum Diambil</span>
+                          <span className="bg-green-50 text-green-700 text-xs font-medium px-2.5 py-0.5 rounded-full">Belum Diambil</span>
                         )}
                         {loan.status === 'dipinjam' && (
                           <span className="bg-blue-50 text-blue-700 text-xs font-medium px-2.5 py-0.5 rounded-full">Dipinjam</span>
@@ -354,13 +354,13 @@ export default function AdminDashboard({ currentUser, onRefresh }: AdminDashboar
         {/* Right: Side Panel */}
         <div className="lg:col-span-1">
           {selectedLoan ? (
-            <div className="bg-white rounded-xl border border-gray-200 p-4 space-y-4 sticky top-20 animate-fade-in">
+            <div className="bg-white rounded-2xl border border-gray-200 shadow-soft p-4 space-y-4 sticky top-20 animate-fade-in">
 
               {/* Panel Header */}
               <div className="flex justify-between items-start pb-3 border-b border-gray-100">
                 <div>
                   <span className="text-xs font-medium text-gray-400 block">Administrasi Pengajuan</span>
-                  <span className="font-semibold text-sm text-[#1E3A8A]">{selectedLoan.kode}</span>
+                  <span className="font-semibold text-sm text-[#334155]">{selectedLoan.kode}</span>
                 </div>
                 <button
                   onClick={() => { setSelectedLoan(null); setIsRejecting(false); setIsReturning(false); }}
@@ -411,7 +411,7 @@ export default function AdminDashboard({ currentUser, onRefresh }: AdminDashboar
                       return (
                         <div key={idx} className="flex justify-between items-center p-2 rounded-lg bg-gray-50 border border-gray-100">
                           <span className="font-medium text-gray-700">{matchBarang ? matchBarang.nama : 'Barang'}</span>
-                          <span className="font-semibold text-[#1E3A8A]">×{it.jumlah} unit</span>
+                          <span className="font-semibold text-[#334155]">×{it.jumlah} unit</span>
                         </div>
                       );
                     })}
@@ -469,7 +469,7 @@ export default function AdminDashboard({ currentUser, onRefresh }: AdminDashboar
                           </button>
                           <button
                             onClick={() => handleApprove(selectedLoan.id)}
-                            className="flex-1 py-2 bg-[#0F766E] text-white font-medium rounded-lg hover:bg-[#0d635c] transition-all cursor-pointer flex items-center justify-center gap-1 text-xs"
+                            className="flex-1 py-2 bg-[#16A34A] text-white font-medium rounded-lg hover:bg-[#15803D] transition-all cursor-pointer flex items-center justify-center gap-1 text-xs"
                           >
                             <Check className="w-3.5 h-3.5" />
                             Setujui
@@ -482,15 +482,15 @@ export default function AdminDashboard({ currentUser, onRefresh }: AdminDashboar
 
                 {/* APPROVED → CONFIRM PICKUP */}
                 {selectedLoan.status === 'disetujui' && (
-                  <div className="pt-3 border-t border-gray-100 bg-teal-50 p-3 rounded-lg border border-teal-100 space-y-2 text-center text-xs">
-                    <p className="font-medium text-teal-700 flex items-center justify-center gap-1">
+                  <div className="pt-3 border-t border-gray-100 bg-green-50 p-3 rounded-lg border border-green-100 space-y-2 text-center text-xs">
+                    <p className="font-medium text-green-700 flex items-center justify-center gap-1">
                       <Check className="w-3.5 h-3.5" />
                       Telah Disetujui TU
                     </p>
                     <p className="text-gray-500">Siswa/Guru bersangkutan siap mengambil inventaris fisik.</p>
                     <button
                       onClick={() => handleDeliverToPeminjam(selectedLoan.id)}
-                      className="w-full py-2 bg-[#1E3A8A] text-white font-medium rounded-lg hover:bg-[#1e40af] transition cursor-pointer mt-1 text-xs"
+                      className="w-full py-2 bg-[#334155] text-white font-medium rounded-lg hover:bg-[#1E293B] transition cursor-pointer mt-1 text-xs"
                     >
                       Konfirmasi Barang Sudah Diambil
                     </button>
@@ -502,7 +502,7 @@ export default function AdminDashboard({ currentUser, onRefresh }: AdminDashboar
                   <div className="pt-3 border-t border-gray-100 space-y-3">
                     {isReturning ? (
                       <div className="space-y-3 bg-blue-50/40 p-3 rounded-lg border border-blue-100">
-                        <span className="block text-xs font-medium text-[#1E3A8A] uppercase tracking-wide">Formulir Catat Pengembalian</span>
+                        <span className="block text-xs font-medium text-[#334155] uppercase tracking-wide">Formulir Catat Pengembalian</span>
                         <div className="space-y-2">
                           <label className="block text-xs font-medium text-gray-400 uppercase tracking-wide">Kondisi Fisik per Barang:</label>
                           {selectedLoan.items.map((it) => {
@@ -544,7 +544,7 @@ export default function AdminDashboard({ currentUser, onRefresh }: AdminDashboar
                           </button>
                           <button
                             onClick={() => handleReturnConfirm(selectedLoan.id)}
-                            className="flex-1 py-1.5 bg-[#0F766E] hover:bg-[#0d635c] text-white font-medium rounded-lg text-xs cursor-pointer"
+                            className="flex-1 py-1.5 bg-[#16A34A] hover:bg-[#15803D] text-white font-medium rounded-lg text-xs cursor-pointer"
                           >
                             Konfirmasi Kembali
                           </button>
@@ -553,7 +553,7 @@ export default function AdminDashboard({ currentUser, onRefresh }: AdminDashboar
                     ) : (
                       <button
                         onClick={() => openReturnForm(selectedLoan)}
-                        className="w-full py-2.5 bg-[#0F766E] hover:bg-[#0d635c] text-white font-medium rounded-lg cursor-pointer transition-all flex items-center justify-center gap-1.5 text-xs"
+                        className="w-full py-2.5 bg-[#16A34A] hover:bg-[#15803D] text-white font-medium rounded-lg cursor-pointer transition-all flex items-center justify-center gap-1.5 text-xs"
                       >
                         <RefreshCw className="w-4 h-4" />
                         Catat Pengembalian Barang

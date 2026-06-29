@@ -117,7 +117,7 @@ export default function App() {
       case 'menunggu_surat':
         return 'text-amber-700';
       case 'disetujui':
-        return 'text-teal-700';
+        return 'text-green-700';
       case 'dipinjam':
         return 'text-blue-700';
       case 'terlambat':
@@ -129,7 +129,7 @@ export default function App() {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50 flex flex-col font-sans selection:bg-[#1E3A8A]/10 selection:text-[#1E3A8A]">
+    <div className="min-h-screen bg-gray-50 flex flex-col font-sans selection:bg-[#334155]/10 selection:text-[#334155]">
       <Navbar
         currentUser={currentUser}
         activeTab={activeTab}
@@ -223,11 +223,11 @@ export default function App() {
       {/* Loan Detail Modal */}
       {selectedPJMDetail && (
         <div className="fixed inset-0 bg-gray-900/50 flex items-center justify-center p-4 z-50">
-          <div className="bg-white rounded-xl border border-gray-200 w-full max-w-md overflow-hidden flex flex-col shadow-lg animate-scale-up">
+          <div className="bg-white rounded-2xl border border-gray-200 w-full max-w-md overflow-hidden flex flex-col shadow-lg animate-scale-up">
 
             {/* Header */}
             <div className="px-5 py-4 border-b border-gray-100 flex justify-between items-center">
-              <div className="flex items-center gap-2 text-[#1E3A8A]">
+              <div className="flex items-center gap-2 text-[#334155]">
                 <ClipboardList className="w-4 h-4" />
                 <span className="font-semibold text-sm text-gray-900">Rincian Transaksi Peminjaman</span>
               </div>
@@ -246,7 +246,7 @@ export default function App() {
               <div className="flex justify-between items-center bg-gray-50 p-3 rounded-lg border border-gray-100">
                 <div>
                   <span className="text-xs text-gray-400 font-medium block">Kode Transaksi</span>
-                  <span className="font-semibold text-[#1E3A8A] text-base">{selectedPJMDetail.kode}</span>
+                  <span className="font-semibold text-[#334155] text-base">{selectedPJMDetail.kode}</span>
                 </div>
                 <div className="text-right">
                   <span className="text-xs text-gray-400 font-medium block">Status</span>
@@ -277,7 +277,7 @@ export default function App() {
                   return (
                     <div key={idx} className="flex justify-between items-center p-2.5 rounded-lg bg-gray-50 border border-gray-100">
                       <span className="font-medium text-gray-800">{match ? match.nama : "Barang"}</span>
-                      <span className="font-semibold text-[#1E3A8A]">×{it.jumlah} Unit</span>
+                      <span className="font-semibold text-[#334155]">×{it.jumlah} Unit</span>
                     </div>
                   );
                 })}
@@ -305,7 +305,7 @@ export default function App() {
 
               {selectedPJMDetail.catatan_admin && (
                 <div className="p-3 bg-blue-50/40 text-gray-800 rounded-lg border border-blue-100 space-y-1">
-                  <span className="font-medium text-[#1E3A8A] block text-xs uppercase tracking-wide">Review & Catatan Admin TU:</span>
+                  <span className="font-medium text-[#334155] block text-xs uppercase tracking-wide">Review & Catatan Admin TU:</span>
                   <p className="text-gray-600 text-sm leading-snug">"{selectedPJMDetail.catatan_admin}"</p>
                 </div>
               )}

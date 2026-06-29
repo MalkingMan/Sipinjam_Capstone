@@ -38,13 +38,13 @@ export default function AdminPengaturanSurat() {
 
       {/* Success Alert */}
       {saveStatus && (
-        <div className="p-3 bg-teal-50 border border-teal-200 text-teal-700 rounded-lg text-sm flex items-center gap-2">
+        <div className="p-3 bg-green-50 border border-green-200 text-green-700 rounded-lg text-sm flex items-center gap-2">
           <CheckCircle className="w-4 h-4 shrink-0" />
           <span className="font-medium">{saveStatus}</span>
         </div>
       )}
 
-      <div className="bg-white rounded-xl border border-gray-200 p-6 space-y-6">
+      <div className="bg-white rounded-2xl border border-gray-200 shadow-soft p-6 space-y-6">
 
         {/* Logo Sekolah */}
         <div>
@@ -152,7 +152,7 @@ export default function AdminPengaturanSurat() {
         <div className="flex justify-end pt-4">
           <button
             onClick={handleSave}
-            className="bg-[#1E3A8A] hover:bg-[#1e40af] text-white font-medium text-sm px-6 py-2.5 rounded-lg flex items-center gap-2 transition active:scale-95 cursor-pointer"
+            className="bg-[#334155] hover:bg-[#1E293B] text-white font-medium text-sm px-6 py-2.5 rounded-lg flex items-center gap-2 transition active:scale-95 cursor-pointer"
           >
             <Save className="w-4 h-4" />
             Simpan Pengaturan

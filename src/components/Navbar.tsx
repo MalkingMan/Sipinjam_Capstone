@@ -15,144 +15,91 @@ interface NavbarProps {
   onOpenDaftarPinjam?: () => void;
 }
 
+interface NavItem {
+  key: string;
+  label: string;
+  shortLabel: string;
+  icon: typeof LayoutDashboard;
+  isActive: (tab: string) => boolean;
+}
+
 export default function Navbar({ currentUser, activeTab, setActiveTab, onLogout, daftarPinjamCount = 0, onOpenDaftarPinjam }: NavbarProps) {
-  const getRoleBadge = (role: UserRole) => {
+  const peminjamNav: NavItem[] = [
+    { key: 'dashboard', label: 'Beranda', shortLabel: 'Beranda', icon: LayoutDashboard, isActive: (t) => t === 'dashboard' },
+    { key: 'katalog', label: 'Katalog Barang', shortLabel: 'Katalog', icon: Boxes, isActive: (t) => t === 'katalog' || t.startsWith('barang_') },
+    { key: 'peminjaman_saya', label: 'Peminjaman Saya', shortLabel: 'Pinjaman', icon: ClipboardList, isActive: (t) => t === 'peminjaman_saya' },
+  ];
+
+  const adminNav: NavItem[] = [
+    { key: 'dashboard', label: 'Dashboard TU', shortLabel: 'Dashboard', icon: LayoutDashboard, isActive: (t) => t === 'dashboard' },
+    { key: 'katalog', label: 'Pratinjau Katalog', shortLabel: 'Katalog', icon: Boxes, isActive: (t) => t === 'katalog' },
+    { key: 'admin_inventaris', label: 'Kelola Inventaris', shortLabel: 'Inventaris', icon: Database, isActive: (t) => t === 'admin_inventaris' },
+    { key: 'admin_riwayat', label: 'Riwayat Pinjam', shortLabel: 'Riwayat', icon: History, isActive: (t) => t === 'admin_riwayat' },
+    { key: 'admin_pengaturan', label: 'Pengaturan Surat', shortLabel: 'Surat', icon: Info, isActive: (t) => t === 'admin_pengaturan' },
+  ];
+
+  const navItems = currentUser.role === 'admin' ? adminNav : peminjamNav;
+
+  const getRoleLabel = (role: UserRole) => {
     switch (role) {
-      case 'admin':
-        return <span className="bg-gray-700 text-gray-300 text-[10px] font-medium px-2 py-0.5 rounded-full">Admin TU</span>;
-      case 'guru':
-        return <span className="bg-gray-700 text-gray-300 text-[10px] font-medium px-2 py-0.5 rounded-full">Guru</span>;
-      default:
-        return <span className="bg-gray-700 text-gray-300 text-[10px] font-medium px-2 py-0.5 rounded-full">Siswa</span>;
+      case 'admin': return 'Admin TU';
+      case 'guru': return 'Guru';
+      default: return 'Siswa';
     }
   };
 
   return (
-    <nav className="bg-[#1F2937] text-white shadow-md sticky top-0 z-50 font-sans">
+    <nav className="bg-white border-b border-gray-200 sticky top-0 z-50 font-sans">
       <div className="max-w-7xl mx-auto px-4">
-        <div className="flex justify-between items-center h-14">
+        <div className="flex justify-between items-center h-16">
 
           {/* Brand */}
-          <div className="flex items-center gap-2.5 cursor-pointer" onClick={() => setActiveTab('dashboard')}>
-            <div className="w-8 h-8 bg-white/10 flex items-center justify-center rounded-lg">
+          <button
+            type="button"
+            className="flex items-center gap-2.5 cursor-pointer group"
+            onClick={() => setActiveTab('dashboard')}
+          >
+            <div className="w-9 h-9 bg-slate-700 flex items-center justify-center rounded-xl shadow-sm group-hover:bg-slate-800 transition-colors">
               <ShieldCheck className="w-5 h-5 text-white" />
             </div>
-            <div>
-              <span className="font-semibold text-base text-white block leading-none">SIPINJAM</span>
-              <span className="text-[10px] text-gray-400 leading-none block mt-0.5">SMAN 1 Sentolo</span>
+            <div className="text-left">
+              <span className="font-bold text-base text-gray-900 block leading-none tracking-tight">SIPINJAM</span>
+              <span className="text-[11px] text-gray-400 leading-none block mt-1">SMAN 1 Sentolo</span>
             </div>
-          </div>
+          </button>
 
           {/* Desktop Nav */}
-          <div className="hidden md:flex items-center gap-0.5">
-            {(currentUser.role === 'siswa' || currentUser.role === 'guru') && (
-              <>
+          <div className="hidden md:flex items-center gap-1">
+            {navItems.map((item) => {
+              const Icon = item.icon;
+              const active = item.isActive(activeTab);
+              return (
                 <button
+                  key={item.key}
                   type="button"
-                  onClick={() => setActiveTab('dashboard')}
-                  className={`flex items-center gap-1.5 px-3 py-1.5 rounded-md text-sm transition-colors cursor-pointer ${
-                    activeTab === 'dashboard' ? 'bg-gray-700 text-white' : 'text-gray-400 hover:bg-gray-700/50 hover:text-gray-200'
+                  onClick={() => setActiveTab(item.key)}
+                  className={`flex items-center gap-2 px-3.5 py-2 rounded-lg text-sm font-medium transition-colors cursor-pointer ${
+                    active ? 'bg-slate-100 text-slate-800' : 'text-gray-500 hover:bg-gray-100 hover:text-gray-900'
                   }`}
                 >
-                  <LayoutDashboard className="w-4 h-4" />
-                  <span>Beranda</span>
+                  <Icon className="w-4 h-4" />
+                  <span>{item.label}</span>
                 </button>
-
-                <button
-                  type="button"
-                  onClick={() => setActiveTab('katalog')}
-                  className={`flex items-center gap-1.5 px-3 py-1.5 rounded-md text-sm transition-colors cursor-pointer ${
-                    activeTab === 'katalog' || activeTab.startsWith('barang_') ? 'bg-gray-700 text-white' : 'text-gray-400 hover:bg-gray-700/50 hover:text-gray-200'
-                  }`}
-                >
-                  <Boxes className="w-4 h-4" />
-                  <span>Katalog Barang</span>
-                </button>
-
-                <button
-                  type="button"
-                  onClick={() => setActiveTab('peminjaman_saya')}
-                  className={`flex items-center gap-1.5 px-3 py-1.5 rounded-md text-sm transition-colors cursor-pointer ${
-                    activeTab === 'peminjaman_saya' ? 'bg-gray-700 text-white' : 'text-gray-400 hover:bg-gray-700/50 hover:text-gray-200'
-                  }`}
-                >
-                  <ClipboardList className="w-4 h-4" />
-                  <span>Peminjaman Saya</span>
-                </button>
-              </>
-            )}
-
-            {currentUser.role === 'admin' && (
-              <>
-                <button
-                  type="button"
-                  onClick={() => setActiveTab('dashboard')}
-                  className={`flex items-center gap-1.5 px-3 py-1.5 rounded-md text-sm transition-colors cursor-pointer ${
-                    activeTab === 'dashboard' ? 'bg-gray-700 text-white' : 'text-gray-400 hover:bg-gray-700/50 hover:text-gray-200'
-                  }`}
-                >
-                  <LayoutDashboard className="w-4 h-4" />
-                  <span>Dashboard TU</span>
-                </button>
-
-                <button
-                  type="button"
-                  onClick={() => setActiveTab('katalog')}
-                  className={`flex items-center gap-1.5 px-3 py-1.5 rounded-md text-sm transition-colors cursor-pointer ${
-                    activeTab === 'katalog' ? 'bg-gray-700 text-white' : 'text-gray-400 hover:bg-gray-700/50 hover:text-gray-200'
-                  }`}
-                >
-                  <Boxes className="w-4 h-4" />
-                  <span>Pratinjau Katalog</span>
-                </button>
-
-                <button
-                  type="button"
-                  onClick={() => setActiveTab('admin_inventaris')}
-                  className={`flex items-center gap-1.5 px-3 py-1.5 rounded-md text-sm transition-colors cursor-pointer ${
-                    activeTab === 'admin_inventaris' ? 'bg-gray-700 text-white' : 'text-gray-400 hover:bg-gray-700/50 hover:text-gray-200'
-                  }`}
-                >
-                  <Database className="w-4 h-4" />
-                  <span>Kelola Inventaris</span>
-                </button>
-
-                <button
-                  type="button"
-                  onClick={() => setActiveTab('admin_riwayat')}
-                  className={`flex items-center gap-1.5 px-3 py-1.5 rounded-md text-sm transition-colors cursor-pointer ${
-                    activeTab === 'admin_riwayat' ? 'bg-gray-700 text-white' : 'text-gray-400 hover:bg-gray-700/50 hover:text-gray-200'
-                  }`}
-                >
-                  <History className="w-4 h-4" />
-                  <span>Riwayat Pinjam</span>
-                </button>
-
-                <button
-                  type="button"
-                  onClick={() => setActiveTab('admin_pengaturan')}
-                  className={`flex items-center gap-1.5 px-3 py-1.5 rounded-md text-sm transition-colors cursor-pointer ${
-                    activeTab === 'admin_pengaturan' ? 'bg-gray-700 text-white' : 'text-gray-400 hover:bg-gray-700/50 hover:text-gray-200'
-                  }`}
-                >
-                  <Info className="w-4 h-4" />
-                  <span>Pengaturan Surat</span>
-                </button>
-              </>
-            )}
+              );
+            })}
           </div>
 
-          {/* Right: User info + actions */}
-          <div className="flex items-center gap-3">
+          {/* Right: actions + user */}
+          <div className="flex items-center gap-2 sm:gap-3">
             {(currentUser.role === 'siswa' || currentUser.role === 'guru') && (
               <button
                 onClick={onOpenDaftarPinjam}
-                className="relative p-2 rounded-md text-gray-300 hover:bg-gray-700/50 hover:text-white transition-colors"
+                className="relative p-2 rounded-lg text-gray-500 hover:bg-gray-100 hover:text-gray-900 transition-colors cursor-pointer"
                 title="Lihat Daftar Pinjam"
               >
                 <ShoppingBag className="w-5 h-5" />
                 {daftarPinjamCount > 0 && (
-                  <span className="absolute top-0.5 right-0 bg-red-500 text-white text-[9px] font-medium px-1 min-w-[16px] h-4 flex items-center justify-center rounded-full leading-none translate-x-1/4 -translate-y-1/4">
+                  <span className="absolute top-0.5 right-0 bg-slate-700 text-white text-[9px] font-semibold px-1 min-w-[16px] h-4 flex items-center justify-center rounded-full leading-none translate-x-1/4 -translate-y-1/4 ring-2 ring-white">
                     {daftarPinjamCount}
                   </span>
                 )}
@@ -160,17 +107,17 @@ export default function Navbar({ currentUser, activeTab, setActiveTab, onLogout,
             )}
 
             <div className="text-right hidden sm:block">
-              <p className="text-sm font-medium text-white leading-none">{currentUser.nama}</p>
-              <div className="flex items-center gap-1.5 justify-end mt-1">
-                {getRoleBadge(currentUser.role)}
-              </div>
+              <p className="text-sm font-semibold text-gray-900 leading-none">{currentUser.nama}</p>
+              <span className="text-[11px] font-medium text-slate-800 bg-slate-100 px-1.5 py-0.5 rounded inline-block mt-1 leading-none">
+                {getRoleLabel(currentUser.role)}
+              </span>
             </div>
 
-            <div className="h-6 w-px bg-gray-600 hidden sm:block"></div>
+            <div className="h-7 w-px bg-gray-200 hidden sm:block"></div>
 
             <button
               onClick={onLogout}
-              className="flex items-center justify-center p-1.5 rounded-md text-gray-400 hover:bg-red-900/30 hover:text-red-400 transition-colors cursor-pointer"
+              className="flex items-center justify-center p-2 rounded-lg text-gray-400 hover:bg-red-50 hover:text-red-600 transition-colors cursor-pointer"
               title="Keluar dari Akun"
             >
               <LogOut className="w-4 h-4" />
@@ -180,88 +127,23 @@ export default function Navbar({ currentUser, activeTab, setActiveTab, onLogout,
       </div>
 
       {/* Mobile Bottom Bar */}
-      <div className="md:hidden bg-[#1a2535] border-t border-gray-700 flex justify-around py-1">
-        {(currentUser.role === 'siswa' || currentUser.role === 'guru') && (
-          <>
+      <div className="md:hidden fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 flex justify-around py-1 z-50">
+        {navItems.map((item) => {
+          const Icon = item.icon;
+          const active = item.isActive(activeTab);
+          return (
             <button
-              onClick={() => setActiveTab('dashboard')}
-              className={`flex flex-col items-center flex-1 py-1.5 text-[10px] font-medium gap-0.5 ${
-                activeTab === 'dashboard' ? 'text-white' : 'text-gray-500'
+              key={item.key}
+              onClick={() => setActiveTab(item.key)}
+              className={`flex flex-col items-center flex-1 py-1.5 text-[10px] font-medium gap-1 transition-colors ${
+                active ? 'text-slate-800' : 'text-gray-400'
               }`}
             >
-              <LayoutDashboard className="w-4 h-4" />
-              Beranda
+              <Icon className="w-5 h-5" />
+              {item.shortLabel}
             </button>
-            <button
-              onClick={() => setActiveTab('katalog')}
-              className={`flex flex-col items-center flex-1 py-1.5 text-[10px] font-medium gap-0.5 ${
-                activeTab === 'katalog' || activeTab.startsWith('barang_') ? 'text-white' : 'text-gray-500'
-              }`}
-            >
-              <Boxes className="w-4 h-4" />
-              Katalog
-            </button>
-            <button
-              onClick={() => setActiveTab('peminjaman_saya')}
-              className={`flex flex-col items-center flex-1 py-1.5 text-[10px] font-medium gap-0.5 ${
-                activeTab === 'peminjaman_saya' ? 'text-white' : 'text-gray-500'
-              }`}
-            >
-              <ClipboardList className="w-4 h-4" />
-              Peminjaman
-            </button>
-          </>
-        )}
-
-        {currentUser.role === 'admin' && (
-          <>
-            <button
-              onClick={() => setActiveTab('dashboard')}
-              className={`flex flex-col items-center flex-1 py-1.5 text-[10px] font-medium gap-0.5 ${
-                activeTab === 'dashboard' ? 'text-white' : 'text-gray-500'
-              }`}
-            >
-              <LayoutDashboard className="w-4 h-4" />
-              Dashboard
-            </button>
-            <button
-              onClick={() => setActiveTab('katalog')}
-              className={`flex flex-col items-center flex-1 py-1.5 text-[10px] font-medium gap-0.5 ${
-                activeTab === 'katalog' ? 'text-white' : 'text-gray-500'
-              }`}
-            >
-              <Boxes className="w-4 h-4" />
-              Katalog
-            </button>
-            <button
-              onClick={() => setActiveTab('admin_inventaris')}
-              className={`flex flex-col items-center flex-1 py-1.5 text-[10px] font-medium gap-0.5 ${
-                activeTab === 'admin_inventaris' ? 'text-white' : 'text-gray-500'
-              }`}
-            >
-              <Database className="w-4 h-4" />
-              Inventaris
-            </button>
-            <button
-              onClick={() => setActiveTab('admin_riwayat')}
-              className={`flex flex-col items-center flex-1 py-1.5 text-[10px] font-medium gap-0.5 ${
-                activeTab === 'admin_riwayat' ? 'text-white' : 'text-gray-500'
-              }`}
-            >
-              <History className="w-4 h-4" />
-              Riwayat
-            </button>
-            <button
-              onClick={() => setActiveTab('admin_pengaturan')}
-              className={`flex flex-col items-center flex-1 py-1.5 text-[10px] font-medium gap-0.5 ${
-                activeTab === 'admin_pengaturan' ? 'text-white' : 'text-gray-500'
-              }`}
-            >
-              <Info className="w-4 h-4" />
-              Surat
-            </button>
-          </>
-        )}
+          );
+        })}
       </div>
     </nav>
   );
