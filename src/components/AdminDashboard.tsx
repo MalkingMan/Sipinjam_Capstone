@@ -24,6 +24,7 @@ export default function AdminDashboard({ currentUser, onRefresh }: AdminDashboar
   const [returnNote, setReturnNote] = useState('');
   const [isRejecting, setIsRejecting] = useState(false);
   const [isReturning, setIsReturning] = useState(false);
+  const [detailLoan, setDetailLoan] = useState<Peminjaman | null>(null);
 
   const allLoans = getPeminjaman();
   const allBarang = getBarang();
@@ -104,6 +105,8 @@ export default function AdminDashboard({ currentUser, onRefresh }: AdminDashboar
     const loans = getPeminjaman();
     const index = loans.findIndex(l => l.id === loanId);
     if (index === -1) return;
+    const response = confirm('Konfirmasi barang sudah diambil peminjam? Status akan berubah menjadi "DIPINJAM".');
+    if (!response) return;
     loans[index].status = 'dipinjam';
     savePeminjaman(loans);
     setSelectedLoan(null);
@@ -125,6 +128,52 @@ export default function AdminDashboard({ currentUser, onRefresh }: AdminDashboar
       case 'rusak_berat': return 'Rusak Berat';
       case 'hilang': return 'Hilang';
       default: return c;
+    }
+  };
+
+  const getStatusLabel = (status: Peminjaman['status']) => {
+    switch (status) {
+      case 'menunggu_surat': return 'Menunggu Surat';
+      case 'menunggu': return 'Menunggu Verifikasi';
+      case 'disetujui': return 'Disetujui';
+      case 'dipinjam': return 'Dipinjam';
+      case 'selesai': return 'Selesai';
+      case 'terlambat': return 'Terlambat';
+      case 'ditolak': return 'Ditolak';
+      default: return status;
+    }
+  };
+
+  const getStatusBadgeClass = (status: Peminjaman['status']) => {
+    switch (status) {
+      case 'menunggu_surat':
+      case 'menunggu': return 'bg-amber-50 text-amber-700 border border-amber-100';
+      case 'disetujui': return 'bg-green-50 text-green-700 border border-green-100';
+      case 'dipinjam': return 'bg-blue-50 text-blue-700 border border-blue-100';
+      case 'terlambat':
+      case 'ditolak': return 'bg-red-50 text-red-700 border border-red-100';
+      case 'selesai':
+      default: return 'bg-gray-100 text-gray-600 border border-gray-200';
+    }
+  };
+
+  const getKategoriLabel = (kategori: Peminjaman['kategori_kegiatan']) => {
+    switch (kategori) {
+      case 'osis': return 'OSIS';
+      case 'ekskul': return 'Ekstrakurikuler';
+      case 'kelas': return 'Kebutuhan Kelas';
+      case 'pribadi': return 'Keluarga / Pribadi';
+      default: return kategori;
+    }
+  };
+
+  const getKondisiBadge = (kondisi?: string) => {
+    switch (kondisi) {
+      case 'baik': return { label: 'Baik & Bersih', cls: 'bg-green-50 text-green-700 border border-green-100' };
+      case 'rusak_ringan': return { label: 'Rusak Ringan', cls: 'bg-amber-50 text-amber-700 border border-amber-100' };
+      case 'rusak_berat': return { label: 'Rusak Berat', cls: 'bg-red-50 text-red-700 border border-red-100' };
+      case 'hilang': return { label: 'Hilang', cls: 'bg-red-100 text-red-800 border border-red-200' };
+      default: return null;
     }
   };
 
@@ -328,13 +377,30 @@ export default function AdminDashboard({ currentUser, onRefresh }: AdminDashboar
                     ) : (
                       <>
                         {loan.status === 'disetujui' && (
-                          <span className="bg-green-50 text-green-700 text-xs font-medium px-2.5 py-0.5 rounded-full">Belum Diambil</span>
+                          <div className="flex items-center gap-2">
+                            <span className="bg-green-50 text-green-700 text-xs font-medium px-2.5 py-0.5 rounded-full">Belum Diambil</span>
+                            <button
+                              onClick={() => handleDeliverToPeminjam(loan.id)}
+                              className="bg-[#334155] hover:bg-[#1E293B] text-white font-medium text-xs px-3 py-1.5 rounded-lg transition-all cursor-pointer"
+                            >
+                              Sudah Diambil
+                            </button>
+                          </div>
                         )}
-                        {loan.status === 'dipinjam' && (
-                          <span className="bg-blue-50 text-blue-700 text-xs font-medium px-2.5 py-0.5 rounded-full">Dipinjam</span>
-                        )}
-                        {loan.status === 'terlambat' && (
-                          <span className="bg-red-50 text-red-700 text-xs font-medium px-2.5 py-0.5 rounded-full">Terlambat</span>
+                        {(loan.status === 'dipinjam' || loan.status === 'terlambat') && (
+                          <div className="flex items-center gap-2">
+                            {loan.status === 'dipinjam' ? (
+                              <span className="bg-blue-50 text-blue-700 text-xs font-medium px-2.5 py-0.5 rounded-full">Dipinjam</span>
+                            ) : (
+                              <span className="bg-red-50 text-red-700 text-xs font-medium px-2.5 py-0.5 rounded-full">Terlambat</span>
+                            )}
+                            <button
+                              onClick={() => { setSelectedLoan(loan); setIsRejecting(false); openReturnForm(loan); }}
+                              className="bg-[#16A34A] hover:bg-[#15803D] text-white font-medium text-xs px-3 py-1.5 rounded-lg transition-all cursor-pointer"
+                            >
+                              Sudah Dikembalikan
+                            </button>
+                          </div>
                         )}
                         {loan.status === 'selesai' && (
                           <span className="bg-gray-100 text-gray-500 text-xs font-medium px-2.5 py-0.5 rounded-full">Kembali</span>
@@ -372,6 +438,14 @@ export default function AdminDashboard({ currentUser, onRefresh }: AdminDashboar
 
               {/* Content */}
               <div className="space-y-3 text-xs">
+                <button
+                  onClick={() => setDetailLoan(selectedLoan)}
+                  className="w-full py-2 bg-slate-50 hover:bg-slate-100 border border-gray-200 text-[#334155] font-medium rounded-lg text-xs cursor-pointer flex items-center justify-center gap-1.5 transition"
+                >
+                  <ClipboardList className="w-3.5 h-3.5" />
+                  Lihat Detail Lengkap
+                </button>
+
                 {/* User */}
                 <div className="p-3 bg-gray-50 rounded-lg border border-gray-100 space-y-1">
                   <div className="flex items-center gap-1.5">
@@ -499,66 +573,14 @@ export default function AdminDashboard({ currentUser, onRefresh }: AdminDashboar
 
                 {/* BORROWED → RETURN */}
                 {(selectedLoan.status === 'dipinjam' || selectedLoan.status === 'terlambat') && (
-                  <div className="pt-3 border-t border-gray-100 space-y-3">
-                    {isReturning ? (
-                      <div className="space-y-3 bg-blue-50/40 p-3 rounded-lg border border-blue-100">
-                        <span className="block text-xs font-medium text-[#334155] uppercase tracking-wide">Formulir Catat Pengembalian</span>
-                        <div className="space-y-2">
-                          <label className="block text-xs font-medium text-gray-400 uppercase tracking-wide">Kondisi Fisik per Barang:</label>
-                          {selectedLoan.items.map((it) => {
-                            const nama = allBarang.find((b) => b.id === it.barang_id)?.nama || 'Barang';
-                            return (
-                              <div key={it.barang_id} className="bg-white border border-gray-200 rounded-lg p-2 space-y-1">
-                                <span className="block text-xs font-medium text-gray-700">{nama} <span className="text-gray-400">(×{it.jumlah})</span></span>
-                                <select
-                                  value={returnConditions[it.barang_id] || 'baik'}
-                                  onChange={(e) => setReturnConditions((prev) => ({ ...prev, [it.barang_id]: e.target.value as any }))}
-                                  className="w-full bg-white border border-gray-200 py-1.5 px-2 rounded-lg font-medium text-xs text-gray-800"
-                                >
-                                  <option value="baik">Kondisi Baik & Bersih</option>
-                                  <option value="rusak_ringan">Rusak Ringan (Kembali ke Stok)</option>
-                                  <option value="rusak_berat">Rusak Berat (Ditarik dari Stok)</option>
-                                  <option value="hilang">Hilang (Ditarik dari Stok)</option>
-                                </select>
-                              </div>
-                            );
-                          })}
-                        </div>
-                        <div>
-                          <label htmlFor="ret_note" className="block text-xs font-medium text-gray-400 uppercase tracking-wide mb-1">Catatan Tambahan:</label>
-                          <textarea
-                            id="ret_note"
-                            rows={2}
-                            placeholder="Tuliskan catatan detail kondisi..."
-                            value={returnNote}
-                            onChange={(e) => setReturnNote(e.target.value)}
-                            className="w-full p-2 border border-gray-200 focus:outline-none focus:ring-1 focus:ring-blue-400 rounded-lg text-xs bg-white text-gray-800"
-                          />
-                        </div>
-                        <div className="flex gap-2">
-                          <button
-                            onClick={() => setIsReturning(false)}
-                            className="flex-1 py-1.5 border border-gray-200 bg-white text-gray-700 font-medium rounded-lg text-xs cursor-pointer"
-                          >
-                            Kembali
-                          </button>
-                          <button
-                            onClick={() => handleReturnConfirm(selectedLoan.id)}
-                            className="flex-1 py-1.5 bg-[#16A34A] hover:bg-[#15803D] text-white font-medium rounded-lg text-xs cursor-pointer"
-                          >
-                            Konfirmasi Kembali
-                          </button>
-                        </div>
-                      </div>
-                    ) : (
-                      <button
-                        onClick={() => openReturnForm(selectedLoan)}
-                        className="w-full py-2.5 bg-[#16A34A] hover:bg-[#15803D] text-white font-medium rounded-lg cursor-pointer transition-all flex items-center justify-center gap-1.5 text-xs"
-                      >
-                        <RefreshCw className="w-4 h-4" />
-                        Catat Pengembalian Barang
-                      </button>
-                    )}
+                  <div className="pt-3 border-t border-gray-100">
+                    <button
+                      onClick={() => openReturnForm(selectedLoan)}
+                      className="w-full py-2.5 bg-[#16A34A] hover:bg-[#15803D] text-white font-medium rounded-lg cursor-pointer transition-all flex items-center justify-center gap-1.5 text-xs"
+                    >
+                      <RefreshCw className="w-4 h-4" />
+                      Catat Pengembalian Barang
+                    </button>
                   </div>
                 )}
 
@@ -591,6 +613,239 @@ export default function AdminDashboard({ currentUser, onRefresh }: AdminDashboar
           )}
         </div>
       </div>
+
+      {/* Return Form Modal (pop-up) */}
+      {isReturning && selectedLoan && (
+        <div
+          className="fixed inset-0 bg-gray-900/50 flex items-center justify-center p-4 z-50"
+          onClick={() => setIsReturning(false)}
+        >
+          <div
+            className="bg-white rounded-2xl border border-gray-200 w-full max-w-md overflow-hidden flex flex-col shadow-lg animate-scale-up max-h-[90vh]"
+            onClick={(e) => e.stopPropagation()}
+          >
+            {/* Header */}
+            <div className="px-5 py-4 border-b border-gray-100 flex justify-between items-center">
+              <div className="flex items-center gap-2 text-[#334155]">
+                <RefreshCw className="w-4 h-4" />
+                <span className="font-semibold text-sm text-gray-900">Catat Pengembalian Barang</span>
+              </div>
+              <button
+                onClick={() => setIsReturning(false)}
+                className="p-1.5 hover:bg-gray-100 rounded-lg text-gray-400 hover:text-gray-700 transition cursor-pointer"
+              >
+                <X className="w-4 h-4" />
+              </button>
+            </div>
+
+            {/* Content */}
+            <div className="p-5 space-y-4 overflow-y-auto">
+              <div className="flex justify-between items-center bg-gray-50 p-3 rounded-xl border border-gray-100">
+                <div>
+                  <span className="text-xs text-gray-400 font-medium block">Kode Transaksi</span>
+                  <span className="font-semibold text-[#334155] text-sm">{selectedLoan.kode}</span>
+                </div>
+                <span className="text-xs text-gray-500">{selectedLoan.peminjam_nama}</span>
+              </div>
+
+              <div className="space-y-2">
+                <label className="block text-xs font-medium text-gray-400 uppercase tracking-wide">Kondisi Fisik per Barang</label>
+                {selectedLoan.items.map((it) => {
+                  const nama = allBarang.find((b) => b.id === it.barang_id)?.nama || 'Barang';
+                  return (
+                    <div key={it.barang_id} className="bg-gray-50 border border-gray-200 rounded-lg p-2.5 space-y-1.5">
+                      <span className="block text-xs font-medium text-gray-700">{nama} <span className="text-gray-400">(×{it.jumlah})</span></span>
+                      <select
+                        value={returnConditions[it.barang_id] || 'baik'}
+                        onChange={(e) => setReturnConditions((prev) => ({ ...prev, [it.barang_id]: e.target.value as any }))}
+                        className="w-full bg-white border border-gray-200 py-2 px-2 rounded-lg font-medium text-xs text-gray-800"
+                      >
+                        <option value="baik">Kondisi Baik & Bersih</option>
+                        <option value="rusak_ringan">Rusak Ringan (Kembali ke Stok)</option>
+                        <option value="rusak_berat">Rusak Berat (Ditarik dari Stok)</option>
+                        <option value="hilang">Hilang (Ditarik dari Stok)</option>
+                      </select>
+                    </div>
+                  );
+                })}
+              </div>
+
+              <div>
+                <label htmlFor="ret_note_modal" className="block text-xs font-medium text-gray-400 uppercase tracking-wide mb-1">Catatan Tambahan</label>
+                <textarea
+                  id="ret_note_modal"
+                  rows={2}
+                  placeholder="Tuliskan catatan detail kondisi..."
+                  value={returnNote}
+                  onChange={(e) => setReturnNote(e.target.value)}
+                  className="w-full p-2.5 border border-gray-200 focus:outline-none focus:ring-1 focus:ring-gray-400 rounded-lg text-xs bg-white text-gray-800"
+                />
+              </div>
+            </div>
+
+            {/* Footer */}
+            <div className="p-4 bg-gray-50 border-t border-gray-100 flex gap-2">
+              <button
+                onClick={() => setIsReturning(false)}
+                className="flex-1 py-2 border border-gray-200 bg-white text-gray-700 font-medium rounded-lg text-sm cursor-pointer hover:bg-gray-100 transition"
+              >
+                Batal
+              </button>
+              <button
+                onClick={() => handleReturnConfirm(selectedLoan.id)}
+                className="flex-1 py-2 bg-[#16A34A] hover:bg-[#15803D] text-white font-medium rounded-lg text-sm cursor-pointer transition"
+              >
+                Konfirmasi Pengembalian
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Full Detail Modal (pop-up) */}
+      {detailLoan && (
+        <div
+          className="fixed inset-0 bg-gray-900/50 flex items-center justify-center p-4 z-50"
+          onClick={() => setDetailLoan(null)}
+        >
+          <div
+            className="bg-white rounded-2xl border border-gray-200 w-full max-w-lg overflow-hidden flex flex-col shadow-lg animate-scale-up max-h-[90vh]"
+            onClick={(e) => e.stopPropagation()}
+          >
+            {/* Header */}
+            <div className="px-5 py-4 border-b border-gray-100 flex justify-between items-center">
+              <div className="flex items-center gap-2 text-[#334155]">
+                <ClipboardList className="w-4 h-4" />
+                <span className="font-semibold text-sm text-gray-900">Detail Lengkap Peminjaman</span>
+              </div>
+              <button
+                onClick={() => setDetailLoan(null)}
+                className="p-1.5 hover:bg-gray-100 rounded-lg text-gray-400 hover:text-gray-700 transition cursor-pointer"
+              >
+                <X className="w-4 h-4" />
+              </button>
+            </div>
+
+            {/* Content */}
+            <div className="p-5 text-sm text-gray-700 space-y-4 overflow-y-auto">
+              {/* Kode + Status */}
+              <div className="flex justify-between items-center bg-gray-50 p-3 rounded-xl border border-gray-100">
+                <div>
+                  <span className="text-xs text-gray-400 font-medium block">Kode Transaksi</span>
+                  <span className="font-semibold text-[#334155] text-base">{detailLoan.kode}</span>
+                </div>
+                <span className={`rounded-full px-2.5 py-1 text-xs font-medium ${getStatusBadgeClass(detailLoan.status)}`}>
+                  {getStatusLabel(detailLoan.status)}
+                </span>
+              </div>
+
+              {/* Peminjam */}
+              <div className="border border-gray-100 rounded-xl p-3 space-y-1">
+                <p className="font-medium text-gray-900 flex items-center gap-1.5">
+                  <UserIcon className="w-4 h-4 text-gray-400" />
+                  {detailLoan.peminjam_nama}
+                </p>
+                <p className="text-xs text-gray-400">{detailLoan.peminjam_kelas} · {detailLoan.peminjam_role.toUpperCase()}</p>
+                <div className="flex flex-wrap gap-1.5 pt-1.5">
+                  <span className="bg-gray-100 text-gray-600 border border-gray-200 text-[11px] font-medium px-2 py-0.5 rounded">
+                    {getKategoriLabel(detailLoan.kategori_kegiatan)}
+                  </span>
+                </div>
+                <p className="text-xs text-gray-600 mt-1.5 leading-snug">"{detailLoan.keperluan}"</p>
+              </div>
+
+              {/* Dates */}
+              <div className="grid grid-cols-2 gap-3">
+                <div className="p-2.5 border border-gray-100 rounded-lg bg-gray-50">
+                  <span className="text-[11px] text-gray-400 block font-medium uppercase tracking-wide">Tanggal Pengajuan</span>
+                  <span className="font-semibold text-gray-800 block mt-0.5 text-sm">{detailLoan.tgl_pengajuan}</span>
+                </div>
+                <div className="p-2.5 border border-gray-100 rounded-lg bg-gray-50">
+                  <span className="text-[11px] text-gray-400 block font-medium uppercase tracking-wide">Mulai Pinjam</span>
+                  <span className="font-semibold text-gray-800 block mt-0.5 text-sm">{detailLoan.tgl_mulai}</span>
+                </div>
+                <div className="p-2.5 border border-gray-100 rounded-lg bg-gray-50">
+                  <span className="text-[11px] text-gray-400 block font-medium uppercase tracking-wide">Rencana Kembali</span>
+                  <span className="font-semibold text-gray-800 block mt-0.5 text-sm">{detailLoan.tgl_kembali_rencana}</span>
+                </div>
+                <div className="p-2.5 border border-gray-100 rounded-lg bg-gray-50">
+                  <span className="text-[11px] text-gray-400 block font-medium uppercase tracking-wide">Kembali Aktual</span>
+                  <span className="font-semibold text-gray-800 block mt-0.5 text-sm">{detailLoan.tgl_kembali_aktual || '—'}</span>
+                </div>
+              </div>
+
+              {/* Items + per-item return condition */}
+              <div className="space-y-1.5">
+                <span className="text-xs text-gray-400 font-medium uppercase tracking-wide flex items-center gap-1.5">
+                  <Boxes className="w-3.5 h-3.5" /> Barang & Kondisi Pengembalian
+                </span>
+                {detailLoan.items.map((it, idx) => {
+                  const match = allBarang.find((b) => b.id === it.barang_id);
+                  const kondisi = getKondisiBadge(it.kondisi_kembali);
+                  return (
+                    <div key={idx} className="p-2.5 rounded-lg bg-gray-50 border border-gray-100 space-y-1.5">
+                      <div className="flex justify-between items-center gap-2">
+                        <span className="font-medium text-gray-800">{match ? match.nama : 'Barang'}</span>
+                        <span className="font-semibold text-[#334155] shrink-0">×{it.jumlah} unit</span>
+                      </div>
+                      <div className="flex items-center justify-between gap-2">
+                        <span className="text-[11px] text-gray-400">Kondisi saat kembali</span>
+                        {kondisi ? (
+                          <span className={`rounded-full px-2 py-0.5 text-[11px] font-medium ${kondisi.cls}`}>{kondisi.label}</span>
+                        ) : (
+                          <span className="text-[11px] text-gray-400 italic">Belum dikembalikan</span>
+                        )}
+                      </div>
+                      {it.catatan_kondisi && (
+                        <p className="text-[11px] text-gray-500 leading-snug border-t border-gray-100 pt-1">
+                          Catatan: {it.catatan_kondisi}
+                        </p>
+                      )}
+                    </div>
+                  );
+                })}
+              </div>
+
+              {/* Catatan Pemohon */}
+              {detailLoan.catatan_peminjam && (
+                <div className="p-3 bg-amber-50/40 rounded-lg border border-amber-100">
+                  <span className="font-medium text-gray-500 block text-xs uppercase tracking-wide mb-1">Catatan Pemohon</span>
+                  <p className="text-gray-600 text-sm leading-snug">{detailLoan.catatan_peminjam}</p>
+                </div>
+              )}
+
+              {/* Rincian Pengembalian (selesai) */}
+              {detailLoan.status === 'selesai' && (
+                <div className="p-3 bg-green-50/50 rounded-lg border border-green-100 space-y-1">
+                  <span className="font-medium text-green-700 text-xs uppercase tracking-wide flex items-center gap-1.5">
+                    <RefreshCw className="w-3.5 h-3.5" /> Rincian Pengembalian
+                  </span>
+                  <p className="text-gray-700 text-sm leading-snug">{detailLoan.catatan_admin}</p>
+                  <p className="text-xs text-gray-400 mt-1">Tanggal dikembalikan: {detailLoan.tgl_kembali_aktual || '—'}</p>
+                </div>
+              )}
+
+              {/* Catatan Admin (non-selesai) */}
+              {detailLoan.status !== 'selesai' && detailLoan.catatan_admin && (
+                <div className="p-3 bg-gray-50 rounded-lg border border-gray-200">
+                  <span className="font-medium text-[#334155] block text-xs uppercase tracking-wide mb-1">Catatan Tata Usaha</span>
+                  <p className="text-gray-600 text-sm leading-snug">"{detailLoan.catatan_admin}"</p>
+                </div>
+              )}
+            </div>
+
+            {/* Footer */}
+            <div className="p-4 bg-gray-50 border-t border-gray-100 flex justify-end">
+              <button
+                onClick={() => setDetailLoan(null)}
+                className="px-4 py-2 bg-white hover:bg-gray-100 border border-gray-200 text-gray-700 text-sm font-medium rounded-lg transition cursor-pointer"
+              >
+                Tutup
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
