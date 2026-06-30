@@ -97,9 +97,39 @@ export default function FormPeminjaman({
     }
   }, [tglMulai, tglKembali]);
 
+  const isGuruRole = currentUser.role === "guru";
+  const identifierLabel = isGuruRole ? "NIP" : "NIS";
+  const identifierPlaceholder = isGuruRole ? "Contoh: 198001011234567890" : "Contoh: 12345";
+  const identifierValidationMessage = isGuruRole ? "NIP" : "NIS";
+
+  const validateRequiredFields = () => {
+    if (!tglMulai) return "Tanggal mulai wajib diisi.";
+    if (!tglKembali) return "Tanggal pengembalian rencana wajib diisi.";
+    if (!keperluan.trim()) return "Harap isi deskripsi keperluan kegiatan peminjaman.";
+    if (!suratNamaKegiatan.trim()) return "Harap isi nama kegiatan untuk surat.";
+    if (!suratHari.trim()) return "Harap pilih hari pelaksanaan.";
+    if (!suratTanggal) return "Harap isi tanggal surat.";
+    if (!suratWaktuMulai) return "Harap isi waktu mulai kegiatan.";
+    if (!suratWaktuSelesai) return "Harap isi waktu selesai kegiatan.";
+    if (!suratTempat.trim()) return "Harap isi tempat kegiatan untuk surat.";
+    if (!suratKetua.trim()) return "Harap isi nama ketua panitia.";
+    if (!suratNisKetua.trim()) return `Harap isi ${identifierValidationMessage.toLowerCase()}.`;
+    if (!/^\d+$/.test(suratNisKetua)) return `${identifierValidationMessage} hanya boleh berisi angka.`;
+    if (isGuruRole && suratNisKetua.length !== 18) return "NIP harus terdiri dari 18 digit angka.";
+    return null;
+  };
+
+  const handleSuratNipKetuaChange = (value: string) => {
+    if (/^\d*$/.test(value)) {
+      setSuratNisKetua(value);
+    }
+  };
+
   const handleNextStep = (e: React.FormEvent) => {
     e.preventDefault();
     setErrorMsg(null);
+    setWarningMsg(null);
+
     if (!tglMulai || !tglKembali) {
       setErrorMsg("Tanggal mulai dan tanggal selesai wajib diisi.");
       return;
@@ -116,10 +146,13 @@ export default function FormPeminjaman({
       setErrorMsg("Daftar pinjam kosong. Kembali ke katalog untuk memilih barang.");
       return;
     }
-    if (!keperluan.trim()) {
-      setErrorMsg("Harap isi deskripsi keperluan kegiatan peminjaman.");
+
+    const validationError = validateRequiredFields();
+    if (validationError) {
+      setErrorMsg(validationError);
       return;
     }
+
     setStep(2);
   };
 
@@ -327,6 +360,7 @@ export default function FormPeminjaman({
                   value={tglMulai}
                   onChange={(e) => setTglMulai(e.target.value)}
                   className={inputClass}
+                  required
                 />
               </div>
               <div>
@@ -341,6 +375,7 @@ export default function FormPeminjaman({
                   value={tglKembali}
                   onChange={(e) => setTglKembali(e.target.value)}
                   className={inputClass}
+                  required
                 />
               </div>
             </div>
@@ -370,6 +405,7 @@ export default function FormPeminjaman({
                   value={keperluan}
                   onChange={(e) => setKeperluan(e.target.value)}
                   className={inputClass}
+                  required
                 />
               </div>
             </div>
@@ -389,6 +425,7 @@ export default function FormPeminjaman({
                     value={suratNamaKegiatan}
                     onChange={(e) => setSuratNamaKegiatan(e.target.value)}
                     className={inputClass}
+                    required
                   />
                 </div>
                 <div>
@@ -399,12 +436,14 @@ export default function FormPeminjaman({
                     value={suratTempat}
                     onChange={(e) => setSuratTempat(e.target.value)}
                     className={inputClass}
+                    required
                   />
                 </div>
               </div>
 
               <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
                 <div>
+<<<<<<< HEAD
                   <label className={labelClass}>Hari & Tanggal Pelaksanaan</label>
                   <input
                     type="date"
@@ -417,25 +456,56 @@ export default function FormPeminjaman({
                       {derivedHari}, {fmtTgl(suratTanggal)}
                     </p>
                   )}
+=======
+                  <label className={labelClass}>Hari Pelaksanaan</label>
+                  <select
+                    value={suratHari}
+                    onChange={(e) => setSuratHari(e.target.value)}
+                    className={selectClass}
+                    required
+                  >
+                    <option>Senin</option>
+                    <option>Selasa</option>
+                    <option>Rabu</option>
+                    <option>Kamis</option>
+                    <option>Jumat</option>
+                    <option>Sabtu</option>
+                    <option>Minggu</option>
+                  </select>
+                </div>
+                <div>
+                  <label className={labelClass}>Tanggal Surat</label>
+                  <input type="date" value={suratTanggal} onChange={(e) => setSuratTanggal(e.target.value)} className={inputClass} required />
+>>>>>>> 8f92aeb69805ba15908b6e2ac7d1a8ad5d88c5ab
                 </div>
                 <div>
                   <label className={labelClass}>Waktu Mulai</label>
-                  <input type="time" value={suratWaktuMulai} onChange={(e) => setSuratWaktuMulai(e.target.value)} className={inputClass} />
+                  <input type="time" value={suratWaktuMulai} onChange={(e) => setSuratWaktuMulai(e.target.value)} className={inputClass} required />
                 </div>
                 <div>
                   <label className={labelClass}>Waktu Selesai</label>
-                  <input type="time" value={suratWaktuSelesai} onChange={(e) => setSuratWaktuSelesai(e.target.value)} className={inputClass} />
+                  <input type="time" value={suratWaktuSelesai} onChange={(e) => setSuratWaktuSelesai(e.target.value)} className={inputClass} required />
                 </div>
               </div>
 
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-3 border-t border-gray-200">
                 <div>
                   <label className={labelClass}>Nama Ketua Panitia</label>
-                  <input type="text" placeholder="Masukkan nama ketua" value={suratKetua} onChange={(e) => setSuratKetua(e.target.value)} className={inputClass} />
+                  <input type="text" placeholder="Masukkan nama ketua" value={suratKetua} onChange={(e) => setSuratKetua(e.target.value)} className={inputClass} required />
                 </div>
                 <div>
-                  <label className={labelClass}>NIS Ketua Panitia</label>
-                  <input type="text" placeholder="Contoh: 12345" value={suratNisKetua} onChange={(e) => setSuratNisKetua(e.target.value)} className={inputClass} />
+                  <label className={labelClass}>{identifierLabel}</label>
+                  <input
+                    type="text"
+                    inputMode="numeric"
+                    pattern="[0-9]*"
+                    maxLength={isGuruRole ? 18 : undefined}
+                    placeholder={identifierPlaceholder}
+                    value={suratNisKetua}
+                    onChange={(e) => handleSuratNipKetuaChange(e.target.value)}
+                    className={inputClass}
+                    required
+                  />
                 </div>
               </div>
             </div>
