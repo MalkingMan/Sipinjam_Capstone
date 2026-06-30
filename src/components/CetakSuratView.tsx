@@ -260,7 +260,7 @@ export default function CetakSuratView({
               {loan.surat_ketua_panitia || loan.peminjam_nama}
             </div>
             <div className="text-[10.5pt] mt-0.5">
-              NIS {loan.surat_nis_ketua || "-"}
+              {loan.peminjam_role === "guru" ? `NIP ${loan.surat_nis_ketua || "-"}` : `NIS ${loan.surat_nis_ketua || "-"}`}
             </div>
           </div>
 
