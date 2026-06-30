@@ -1,227 +1,188 @@
 import express from 'express';
 import cors from 'cors';
+import dotenv from 'dotenv';
 import pool from './db.js';
 
+dotenv.config();
+
 const app = express();
-const PORT = 5000;
+const PORT = process.env.PORT || 3001;
 
 app.use(cors());
-app.use(express.json({ limit: '50mb' })); // Increase limit for base64 images if needed
+app.use(express.json({ limit: '50mb' })); // limit besar untuk gambar base64
 
-// ==========================
-// API: USERS
-// ==========================
-app.get('/api/users', async (req, res) => {
-  try {
-    const [rows] = await pool.query('SELECT * FROM users');
-    res.json(rows);
-  } catch (err) {
-    res.status(500).json({ error: err.message });
+// Helper: normalisasi spesifikasi barang (mysql2 mengembalikan kolom JSON sudah ter-parse)
+const parseSpesifikasi = (val) => {
+  if (val == null) return undefined;
+  if (typeof val === 'string') {
+    try { return JSON.parse(val); } catch { return undefined; }
   }
-});
+  return val;
+};
 
-app.post('/api/users', async (req, res) => {
-  try {
-    const { id, nis_nip, password, nama, email, role, kelas_jabatan, organisasi } = req.body;
-    await pool.query(
-      'REPLACE INTO users (id, nis_nip, password, nama, email, role, kelas_jabatan, organisasi) VALUES (?, ?, ?, ?, ?, ?, ?, ?)',
-      [id, nis_nip, password || null, nama, email || null, role, kelas_jabatan || null, organisasi || null]
-    );
-    res.json({ success: true });
-  } catch (err) {
-    res.status(500).json({ error: err.message });
-  }
-});
+// ======================================================
+// BOOTSTRAP — ambil seluruh data dalam satu panggilan
+// ======================================================
+app.get('/api/health', (req, res) => res.json({ ok: true, time: new Date().toISOString() }));
 
-// ==========================
-// API: KATEGORI
-// ==========================
-app.get('/api/kategori', async (req, res) => {
+app.get('/api/bootstrap', async (req, res) => {
   try {
-    const [rows] = await pool.query('SELECT * FROM kategori');
-    res.json(rows);
-  } catch (err) {
-    res.status(500).json({ error: err.message });
-  }
-});
+    const [users] = await pool.query('SELECT * FROM users');
+    const [kategori] = await pool.query('SELECT * FROM kategori');
+    const [barangRows] = await pool.query('SELECT * FROM barang');
+    const [pemRows] = await pool.query('SELECT * FROM peminjaman ORDER BY tgl_pengajuan DESC');
+    const [itemRows] = await pool.query('SELECT * FROM peminjaman_items');
+    const [pengRows] = await pool.query('SELECT * FROM pengaturan_surat WHERE id = 1');
 
-app.post('/api/kategori', async (req, res) => {
-  try {
-    const { id, nama, ikon } = req.body;
-    await pool.query('REPLACE INTO kategori (id, nama, ikon) VALUES (?, ?, ?)', [id, nama, ikon || null]);
-    res.json({ success: true });
-  } catch (err) {
-    res.status(500).json({ error: err.message });
-  }
-});
+    const barang = barangRows.map((b) => ({ ...b, spesifikasi: parseSpesifikasi(b.spesifikasi) }));
 
-app.delete('/api/kategori/:id', async (req, res) => {
-  try {
-    await pool.query('DELETE FROM kategori WHERE id = ?', [req.params.id]);
-    res.json({ success: true });
-  } catch (err) {
-    res.status(500).json({ error: err.message });
-  }
-});
-
-// ==========================
-// API: BARANG
-// ==========================
-app.get('/api/barang', async (req, res) => {
-  try {
-    const [rows] = await pool.query('SELECT * FROM barang');
-    // Parse spesifikasi from JSON string to object
-    const barang = rows.map(b => ({
-      ...b,
-      spesifikasi: b.spesifikasi ? JSON.parse(b.spesifikasi) : null
+    const peminjaman = pemRows.map((p) => ({
+      ...p,
+      items: itemRows
+        .filter((i) => i.peminjaman_id === p.id)
+        .map((i) => ({
+          barang_id: i.barang_id,
+          jumlah: i.jumlah,
+          kondisi_kembali: i.kondisi_kembali || undefined,
+          catatan_kondisi: i.catatan_kondisi || undefined,
+        })),
     }));
-    res.json(barang);
+
+    res.json({ users, kategori, barang, peminjaman, pengaturan: pengRows[0] || null });
   } catch (err) {
     res.status(500).json({ error: err.message });
   }
 });
 
-app.post('/api/barang', async (req, res) => {
+// ======================================================
+// BULK REPLACE — mengganti seluruh isi koleksi
+// (cocok dengan pola "simpan semua" di frontend)
+// ======================================================
+
+app.put('/api/users', async (req, res) => {
+  const list = Array.isArray(req.body) ? req.body : [];
+  const conn = await pool.getConnection();
   try {
-    const { id, kategori_id, nama, foto, kode, deskripsi, lokasi, stok_total, stok_tersedia, status, spesifikasi } = req.body;
-    await pool.query(
-      'REPLACE INTO barang (id, kategori_id, nama, foto, kode, deskripsi, lokasi, stok_total, stok_tersedia, status, spesifikasi) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)',
-      [id, kategori_id || null, nama, foto || null, kode, deskripsi || null, lokasi || null, stok_total || 0, stok_tersedia || 0, status || 'tersedia', spesifikasi ? JSON.stringify(spesifikasi) : null]
-    );
-    res.json({ success: true });
+    await conn.beginTransaction();
+    await conn.query('DELETE FROM users');
+    for (const u of list) {
+      await conn.query(
+        'INSERT INTO users (id, nis_nip, nama, email, role, kelas_jabatan, organisasi, password) VALUES (?, ?, ?, ?, ?, ?, ?, ?)',
+        [u.id, u.nis_nip, u.nama, u.email || null, u.role, u.kelas_jabatan || null, u.organisasi || null, u.password || null]
+      );
+    }
+    await conn.commit();
+    res.json({ success: true, count: list.length });
   } catch (err) {
+    await conn.rollback();
     res.status(500).json({ error: err.message });
+  } finally {
+    conn.release();
   }
 });
 
-app.put('/api/barang/:id', async (req, res) => {
+app.put('/api/kategori', async (req, res) => {
+  const list = Array.isArray(req.body) ? req.body : [];
+  const conn = await pool.getConnection();
   try {
-    const { kategori_id, nama, foto, kode, deskripsi, lokasi, stok_total, stok_tersedia, status, spesifikasi } = req.body;
-    await pool.query(
-      'UPDATE barang SET kategori_id=?, nama=?, foto=?, kode=?, deskripsi=?, lokasi=?, stok_total=?, stok_tersedia=?, status=?, spesifikasi=? WHERE id=?',
-      [kategori_id || null, nama, foto || null, kode, deskripsi || null, lokasi || null, stok_total || 0, stok_tersedia || 0, status || 'tersedia', spesifikasi ? JSON.stringify(spesifikasi) : null, req.params.id]
-    );
-    res.json({ success: true });
+    await conn.beginTransaction();
+    await conn.query('DELETE FROM kategori');
+    for (const k of list) {
+      await conn.query('INSERT INTO kategori (id, nama, ikon) VALUES (?, ?, ?)', [k.id, k.nama, k.ikon || null]);
+    }
+    await conn.commit();
+    res.json({ success: true, count: list.length });
   } catch (err) {
+    await conn.rollback();
     res.status(500).json({ error: err.message });
+  } finally {
+    conn.release();
   }
 });
 
-app.delete('/api/barang/:id', async (req, res) => {
+app.put('/api/barang', async (req, res) => {
+  const list = Array.isArray(req.body) ? req.body : [];
+  const conn = await pool.getConnection();
   try {
-    await pool.query('DELETE FROM barang WHERE id = ?', [req.params.id]);
-    res.json({ success: true });
+    await conn.beginTransaction();
+    await conn.query('DELETE FROM barang');
+    for (const b of list) {
+      await conn.query(
+        `INSERT INTO barang (id, kode, nama, kategori_id, foto, stok_total, stok_tersedia, lokasi, status, deskripsi, spesifikasi)
+         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+        [
+          b.id, b.kode, b.nama, b.kategori_id || null, b.foto || null,
+          b.stok_total ?? 0, b.stok_tersedia ?? 0, b.lokasi || null,
+          b.status || 'aktif', b.deskripsi || null,
+          b.spesifikasi ? JSON.stringify(b.spesifikasi) : null,
+        ]
+      );
+    }
+    await conn.commit();
+    res.json({ success: true, count: list.length });
   } catch (err) {
+    await conn.rollback();
     res.status(500).json({ error: err.message });
+  } finally {
+    conn.release();
   }
 });
 
-// ==========================
-// API: PEMINJAMAN
-// ==========================
-app.get('/api/peminjaman', async (req, res) => {
+app.put('/api/peminjaman', async (req, res) => {
+  const list = Array.isArray(req.body) ? req.body : [];
+  const conn = await pool.getConnection();
   try {
-    const [peminjamanRows] = await pool.query('SELECT * FROM peminjaman');
-    const [itemsRows] = await pool.query('SELECT * FROM peminjaman_items');
-    
-    // Group items by peminjaman_id
-    const peminjamanList = peminjamanRows.map(p => {
-      const items = itemsRows.filter(i => i.peminjaman_id === p.id).map(i => ({
-        barang_id: i.barang_id,
-        jumlah: i.jumlah
-      }));
-      return { ...p, items };
-    });
-    
-    res.json(peminjamanList);
-  } catch (err) {
-    res.status(500).json({ error: err.message });
-  }
-});
-
-app.post('/api/peminjaman', async (req, res) => {
-  const connection = await pool.getConnection();
-  try {
-    await connection.beginTransaction();
-    const { id, user_id, status, tgl_pengajuan, tgl_mulai, tgl_kembali_rencana, tgl_kembali_aktual, keperluan, kategori_kegiatan, catatan_peminjam, catatan_admin, kode, items } = req.body;
-    
-    await connection.query(
-      'REPLACE INTO peminjaman (id, user_id, status, tgl_pengajuan, tgl_mulai, tgl_kembali_rencana, tgl_kembali_aktual, keperluan, kategori_kegiatan, catatan_peminjam, catatan_admin, kode) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)',
-      [id, user_id, status || 'menunggu', tgl_pengajuan, tgl_mulai, tgl_kembali_rencana, tgl_kembali_aktual || null, keperluan, kategori_kegiatan || null, catatan_peminjam || null, catatan_admin || null, kode || null]
-    );
-    
-    if (items && items.length > 0) {
-      for (const item of items) {
-        await connection.query(
-          'REPLACE INTO peminjaman_items (peminjaman_id, barang_id, jumlah) VALUES (?, ?, ?)',
-          [id, item.barang_id, item.jumlah || 1]
+    await conn.beginTransaction();
+    // Hapus items dulu lalu peminjaman (FK cascade juga menangani, tapi eksplisit lebih aman)
+    await conn.query('DELETE FROM peminjaman_items');
+    await conn.query('DELETE FROM peminjaman');
+    for (const p of list) {
+      await conn.query(
+        `INSERT INTO peminjaman
+         (id, kode, peminjam_id, peminjam_nama, peminjam_role, peminjam_kelas, approver_id,
+          tgl_pengajuan, tgl_mulai, tgl_kembali_rencana, tgl_kembali_aktual, status, keperluan,
+          kategori_kegiatan, catatan_peminjam, catatan_admin,
+          surat_nama_kegiatan, surat_hari, surat_tanggal_kegiatan, surat_waktu_mulai, surat_waktu_selesai,
+          surat_tempat, surat_ketua_panitia, surat_nis_ketua)
+         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+        [
+          p.id, p.kode, p.peminjam_id, p.peminjam_nama, p.peminjam_role, p.peminjam_kelas || null, p.approver_id || null,
+          p.tgl_pengajuan, p.tgl_mulai, p.tgl_kembali_rencana, p.tgl_kembali_aktual || null, p.status || 'menunggu_surat', p.keperluan || null,
+          p.kategori_kegiatan || 'osis', p.catatan_peminjam || null, p.catatan_admin || null,
+          p.surat_nama_kegiatan || null, p.surat_hari || null, p.surat_tanggal_kegiatan || null, p.surat_waktu_mulai || null, p.surat_waktu_selesai || null,
+          p.surat_tempat || null, p.surat_ketua_panitia || null, p.surat_nis_ketua || null,
+        ]
+      );
+      for (const it of p.items || []) {
+        await conn.query(
+          'INSERT INTO peminjaman_items (peminjaman_id, barang_id, jumlah, kondisi_kembali, catatan_kondisi) VALUES (?, ?, ?, ?, ?)',
+          [p.id, it.barang_id, it.jumlah ?? 1, it.kondisi_kembali || null, it.catatan_kondisi || null]
         );
       }
     }
-    
-    await connection.commit();
-    res.json({ success: true });
+    await conn.commit();
+    res.json({ success: true, count: list.length });
   } catch (err) {
-    await connection.rollback();
+    await conn.rollback();
     res.status(500).json({ error: err.message });
   } finally {
-    connection.release();
+    conn.release();
   }
 });
 
-app.put('/api/peminjaman/:id', async (req, res) => {
+app.put('/api/pengaturan-surat', async (req, res) => {
   try {
-    const { status, tgl_kembali_aktual, catatan_admin } = req.body;
+    const s = req.body || {};
     await pool.query(
-      'UPDATE peminjaman SET status=?, tgl_kembali_aktual=?, catatan_admin=? WHERE id=?',
-      [status, tgl_kembali_aktual, catatan_admin, req.params.id]
+      `REPLACE INTO pengaturan_surat
+       (id, waka_kesiswaan_nama, waka_kesiswaan_nip, waka_sarpras_nama, waka_sarpras_nip, surat_counter, surat_tahun, logo_sekolah)
+       VALUES (1, ?, ?, ?, ?, ?, ?, ?)`,
+      [
+        s.waka_kesiswaan_nama || null, s.waka_kesiswaan_nip || null,
+        s.waka_sarpras_nama || null, s.waka_sarpras_nip || null,
+        s.surat_counter ?? 1, s.surat_tahun ?? new Date().getFullYear(), s.logo_sekolah || null,
+      ]
     );
-    res.json({ success: true });
-  } catch (err) {
-    res.status(500).json({ error: err.message });
-  }
-});
-
-// ==========================
-// API: PENGATURAN SURAT
-// ==========================
-app.get('/api/pengaturan-surat', async (req, res) => {
-  try {
-    const [rows] = await pool.query('SELECT * FROM pengaturan_surat LIMIT 1');
-    if (rows.length > 0) {
-      res.json(rows[0]);
-    } else {
-      res.json({
-        waka_kesiswaan_nama: 'Jajan Wahyudi, S.Pd',
-        waka_kesiswaan_nip: '197001171979021001',
-        waka_sarpras_nama: 'Zhainuri, S.Pd',
-        waka_sarpras_nip: '197204282006011007',
-        surat_counter: 1,
-        surat_tahun: new Date().getFullYear(),
-        logo_sekolah: ''
-      });
-    }
-  } catch (err) {
-    res.status(500).json({ error: err.message });
-  }
-});
-
-app.post('/api/pengaturan-surat', async (req, res) => {
-  try {
-    const { waka_kesiswaan_nama, waka_kesiswaan_nip, waka_sarpras_nama, waka_sarpras_nip, surat_counter, surat_tahun, logo_sekolah } = req.body;
-    // Check if exists
-    const [existing] = await pool.query('SELECT id FROM pengaturan_surat LIMIT 1');
-    if (existing.length > 0) {
-      await pool.query(
-        'UPDATE pengaturan_surat SET waka_kesiswaan_nama=?, waka_kesiswaan_nip=?, waka_sarpras_nama=?, waka_sarpras_nip=?, surat_counter=?, surat_tahun=?, logo_sekolah=? WHERE id=?',
-        [waka_kesiswaan_nama || null, waka_kesiswaan_nip || null, waka_sarpras_nama || null, waka_sarpras_nip || null, surat_counter || 1, surat_tahun || new Date().getFullYear(), logo_sekolah || null, existing[0].id]
-      );
-    } else {
-      await pool.query(
-        'INSERT INTO pengaturan_surat (waka_kesiswaan_nama, waka_kesiswaan_nip, waka_sarpras_nama, waka_sarpras_nip, surat_counter, surat_tahun, logo_sekolah) VALUES (?, ?, ?, ?, ?, ?, ?)',
-        [waka_kesiswaan_nama || null, waka_kesiswaan_nip || null, waka_sarpras_nama || null, waka_sarpras_nip || null, surat_counter || 1, surat_tahun || new Date().getFullYear(), logo_sekolah || null]
-      );
-    }
     res.json({ success: true });
   } catch (err) {
     res.status(500).json({ error: err.message });
@@ -229,5 +190,5 @@ app.post('/api/pengaturan-surat', async (req, res) => {
 });
 
 app.listen(PORT, () => {
-  console.log(`SIPINJAM Backend Server is running on http://localhost:${PORT}`);
+  console.log(`SIPINJAM Backend Server berjalan di http://localhost:${PORT}`);
 });

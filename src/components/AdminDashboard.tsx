@@ -6,6 +6,7 @@
 import { useState } from 'react';
 import { User, Peminjaman, Barang } from '../types';
 import { getPeminjaman, getBarang, savePeminjaman, saveBarang } from '../data/db';
+import { fmtTgl } from '../utils';
 import { Clock, Boxes, AlertTriangle, Database, Check, X, Info, User as UserIcon, MessageSquare, RefreshCw, ClipboardList } from 'lucide-react';
 
 interface AdminDashboardProps {
@@ -340,7 +341,7 @@ export default function AdminDashboard({ currentUser, onRefresh }: AdminDashboar
                   <div className="space-y-1.5">
                     <div className="flex items-center gap-2">
                       <span className="font-semibold text-xs text-gray-900">{loan.kode}</span>
-                      <span className="text-xs text-gray-400">{loan.tgl_pengajuan}</span>
+                      <span className="text-xs text-gray-400">{fmtTgl(loan.tgl_pengajuan)}</span>
                     </div>
                     <div>
                       <p className="text-xs font-medium text-gray-700 line-clamp-1">{loan.keperluan}</p>
@@ -462,11 +463,11 @@ export default function AdminDashboard({ currentUser, onRefresh }: AdminDashboar
                 <div className="flex justify-between items-center bg-gray-50 p-2.5 rounded-lg border border-gray-100">
                   <div>
                     <span className="text-[10px] text-gray-400 block font-medium uppercase">Mulai Pinjam</span>
-                    <span className="font-semibold text-gray-700">{selectedLoan.tgl_mulai}</span>
+                    <span className="font-semibold text-gray-700">{fmtTgl(selectedLoan.tgl_mulai)}</span>
                   </div>
                   <div className="text-right">
                     <span className="text-[10px] text-gray-400 block font-medium uppercase">Rencana Kembali</span>
-                    <span className="font-semibold text-gray-700">{selectedLoan.tgl_kembali_rencana}</span>
+                    <span className="font-semibold text-gray-700">{fmtTgl(selectedLoan.tgl_kembali_rencana)}</span>
                   </div>
                 </div>
 
@@ -591,7 +592,7 @@ export default function AdminDashboard({ currentUser, onRefresh }: AdminDashboar
                   <div className="p-3 bg-gray-50 border border-gray-200 rounded-lg text-xs space-y-1">
                     <span className="font-medium text-gray-500 block uppercase tracking-wide text-[10px]">Rincian Pengembalian:</span>
                     <p className="font-medium text-gray-700">{selectedLoan.catatan_admin}</p>
-                    <p className="text-xs text-gray-400 mt-1">Tanggal Dikembalikan: {selectedLoan.tgl_kembali_aktual}</p>
+                    <p className="text-xs text-gray-400 mt-1">Tanggal Dikembalikan: {fmtTgl(selectedLoan.tgl_kembali_aktual)}</p>
                   </div>
                 )}
 
@@ -760,19 +761,19 @@ export default function AdminDashboard({ currentUser, onRefresh }: AdminDashboar
               <div className="grid grid-cols-2 gap-3">
                 <div className="p-2.5 border border-gray-100 rounded-lg bg-gray-50">
                   <span className="text-[11px] text-gray-400 block font-medium uppercase tracking-wide">Tanggal Pengajuan</span>
-                  <span className="font-semibold text-gray-800 block mt-0.5 text-sm">{detailLoan.tgl_pengajuan}</span>
+                  <span className="font-semibold text-gray-800 block mt-0.5 text-sm">{fmtTgl(detailLoan.tgl_pengajuan)}</span>
                 </div>
                 <div className="p-2.5 border border-gray-100 rounded-lg bg-gray-50">
                   <span className="text-[11px] text-gray-400 block font-medium uppercase tracking-wide">Mulai Pinjam</span>
-                  <span className="font-semibold text-gray-800 block mt-0.5 text-sm">{detailLoan.tgl_mulai}</span>
+                  <span className="font-semibold text-gray-800 block mt-0.5 text-sm">{fmtTgl(detailLoan.tgl_mulai)}</span>
                 </div>
                 <div className="p-2.5 border border-gray-100 rounded-lg bg-gray-50">
                   <span className="text-[11px] text-gray-400 block font-medium uppercase tracking-wide">Rencana Kembali</span>
-                  <span className="font-semibold text-gray-800 block mt-0.5 text-sm">{detailLoan.tgl_kembali_rencana}</span>
+                  <span className="font-semibold text-gray-800 block mt-0.5 text-sm">{fmtTgl(detailLoan.tgl_kembali_rencana)}</span>
                 </div>
                 <div className="p-2.5 border border-gray-100 rounded-lg bg-gray-50">
                   <span className="text-[11px] text-gray-400 block font-medium uppercase tracking-wide">Kembali Aktual</span>
-                  <span className="font-semibold text-gray-800 block mt-0.5 text-sm">{detailLoan.tgl_kembali_aktual || '—'}</span>
+                  <span className="font-semibold text-gray-800 block mt-0.5 text-sm">{fmtTgl(detailLoan.tgl_kembali_aktual)}</span>
                 </div>
               </div>
 
@@ -823,7 +824,7 @@ export default function AdminDashboard({ currentUser, onRefresh }: AdminDashboar
                     <RefreshCw className="w-3.5 h-3.5" /> Rincian Pengembalian
                   </span>
                   <p className="text-gray-700 text-sm leading-snug">{detailLoan.catatan_admin}</p>
-                  <p className="text-xs text-gray-400 mt-1">Tanggal dikembalikan: {detailLoan.tgl_kembali_aktual || '—'}</p>
+                  <p className="text-xs text-gray-400 mt-1">Tanggal dikembalikan: {fmtTgl(detailLoan.tgl_kembali_aktual)}</p>
                 </div>
               )}
 

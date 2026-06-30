@@ -3,10 +3,10 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import React, { useState } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { User, Barang, Kategori, BarangStatus } from '../types';
-import { getBarang, getKategori, getPeminjaman, saveBarang } from '../data/db';
-import { Plus, Edit, Trash2, Search, X, Database } from 'lucide-react';
+import { getBarang, getKategori, getPeminjaman, saveBarang, saveKategori } from '../data/db';
+import { Plus, Edit, Trash2, Search, X, Database, ChevronDown, Check } from 'lucide-react';
 
 interface AdminInventarisProps {
   key?: any;
@@ -30,6 +30,36 @@ export default function AdminInventaris({ currentUser, onRefresh }: AdminInventa
   const [deskripsi, setDeskripsi] = useState('');
   const [specMerk, setSpecMerk] = useState('');
   const [specFitur, setSpecFitur] = useState('');
+
+  // Kategori custom dropdown
+  const [isKatDropdownOpen, setIsKatDropdownOpen] = useState(false);
+  const [showAddKat, setShowAddKat] = useState(false);
+  const [newKatNama, setNewKatNama] = useState('');
+  const katDropRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const handler = (e: MouseEvent) => {
+      if (katDropRef.current && !katDropRef.current.contains(e.target as Node)) {
+        setIsKatDropdownOpen(false);
+        setShowAddKat(false);
+        setNewKatNama('');
+      }
+    };
+    document.addEventListener('mousedown', handler);
+    return () => document.removeEventListener('mousedown', handler);
+  }, []);
+
+  const handleAddKategori = () => {
+    const nama = newKatNama.trim();
+    if (!nama) return;
+    const newKat: Kategori = { id: `KAT-${Date.now()}`, nama, ikon: 'Package' };
+    saveKategori([...getKategori(), newKat]);
+    setKategoriId(newKat.id);
+    setShowAddKat(false);
+    setNewKatNama('');
+    setIsKatDropdownOpen(false);
+    onRefresh();
+  };
 
   const barangList = getBarang();
   const kategoriList = getKategori();
@@ -306,15 +336,80 @@ export default function AdminInventaris({ currentUser, onRefresh }: AdminInventa
                   />
                 </div>
                 <div>
-                  <label htmlFor="kat_field" className="block text-xs font-medium text-gray-500 uppercase tracking-wide mb-1">Kategori</label>
-                  <select
-                    id="kat_field"
-                    value={kategoriId}
-                    onChange={(e) => setKategoriId(e.target.value)}
-                    className="w-full py-2 px-3 border border-gray-300 rounded-md text-sm text-gray-900 bg-gray-50 focus:outline-none focus:ring-1 focus:ring-blue-500"
-                  >
-                    {kategoriList.map(c => <option key={c.id} value={c.id}>{c.nama}</option>)}
-                  </select>
+                  <label className="block text-xs font-medium text-gray-500 uppercase tracking-wide mb-1">Kategori</label>
+                  <div className="relative" ref={katDropRef}>
+                    {/* Trigger */}
+                    <button
+                      type="button"
+                      onClick={() => { setIsKatDropdownOpen((v: boolean) => !v); setShowAddKat(false); setNewKatNama(''); }}
+                      className="w-full py-2 px-3 border border-gray-300 rounded-md text-sm text-gray-900 bg-gray-50 focus:outline-none focus:ring-1 focus:ring-blue-500 text-left flex justify-between items-center gap-1 cursor-pointer"
+                    >
+                      <span className="truncate">{kategoriList.find(c => c.id === kategoriId)?.nama || 'Pilih...'}</span>
+                      <ChevronDown className={`w-4 h-4 text-gray-400 shrink-0 transition-transform ${isKatDropdownOpen ? 'rotate-180' : ''}`} />
+                    </button>
+
+                    {/* Dropdown panel */}
+                    {isKatDropdownOpen && (
+                      <div className="absolute z-20 mt-1 w-full bg-white border border-gray-200 rounded-lg shadow-lg flex flex-col max-h-56 overflow-hidden">
+                        <div className="overflow-y-auto flex-1">
+                          {kategoriList.map(c => (
+                            <button
+                              key={c.id}
+                              type="button"
+                              onClick={() => { setKategoriId(c.id); setIsKatDropdownOpen(false); }}
+                              className={`w-full px-3 py-2 text-left text-sm flex items-center justify-between gap-2 hover:bg-gray-50 transition cursor-pointer ${c.id === kategoriId ? 'text-[#334155] font-medium bg-slate-50' : 'text-gray-700'}`}
+                            >
+                              <span>{c.nama}</span>
+                              {c.id === kategoriId && <Check className="w-3.5 h-3.5 text-[#334155] shrink-0" />}
+                            </button>
+                          ))}
+                        </div>
+
+                        {/* Add new kategori */}
+                        <div className="border-t border-gray-100">
+                          {!showAddKat ? (
+                            <button
+                              type="button"
+                              onClick={() => setShowAddKat(true)}
+                              className="w-full px-3 py-2 text-left text-sm text-[#334155] hover:bg-slate-50 flex items-center gap-1.5 font-medium transition cursor-pointer"
+                            >
+                              <Plus className="w-3.5 h-3.5" />
+                              Tambah Kategori Baru
+                            </button>
+                          ) : (
+                            <div className="p-2 flex gap-1.5">
+                              <input
+                                type="text"
+                                autoFocus
+                                value={newKatNama}
+                                onChange={(e) => setNewKatNama(e.target.value)}
+                                onKeyDown={(e: React.KeyboardEvent<HTMLInputElement>) => {
+                                  if (e.key === 'Enter') { e.preventDefault(); handleAddKategori(); }
+                                  if (e.key === 'Escape') { setShowAddKat(false); setNewKatNama(''); }
+                                }}
+                                placeholder="Nama kategori baru..."
+                                className="flex-1 min-w-0 py-1.5 px-2 border border-gray-300 rounded text-sm text-gray-900 focus:outline-none focus:ring-1 focus:ring-blue-500"
+                              />
+                              <button
+                                type="button"
+                                onClick={handleAddKategori}
+                                className="px-2.5 py-1 bg-[#334155] text-white rounded text-xs font-medium hover:bg-[#1E293B] transition cursor-pointer shrink-0"
+                              >
+                                Simpan
+                              </button>
+                              <button
+                                type="button"
+                                onClick={() => { setShowAddKat(false); setNewKatNama(''); }}
+                                className="p-1.5 bg-gray-100 text-gray-500 rounded hover:bg-gray-200 transition cursor-pointer shrink-0"
+                              >
+                                <X className="w-3 h-3" />
+                              </button>
+                            </div>
+                          )}
+                        </div>
+                      </div>
+                    )}
+                  </div>
                 </div>
               </div>
 

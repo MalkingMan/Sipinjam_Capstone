@@ -5,6 +5,7 @@
 
 import { User, Peminjaman, Barang } from '../types';
 import { getPeminjaman, getBarang } from '../data/db';
+import { fmtTgl } from '../utils';
 import { Plus, Boxes, ClipboardList, TrendingUp, CheckCircle2, Clock, AlertTriangle, AlertCircle, HelpCircle } from 'lucide-react';
 
 interface PeminjamDashboardProps {
@@ -155,7 +156,7 @@ export default function PeminjamDashboard({ currentUser, onNavigate, onSelectPem
                       <div>
                         <div className="flex items-center gap-2">
                           <span className="font-semibold text-sm text-[#334155]">{loan.kode}</span>
-                          <span className="text-xs text-gray-400">· {loan.tgl_pengajuan}</span>
+                          <span className="text-xs text-gray-400">· {fmtTgl(loan.tgl_pengajuan)}</span>
                         </div>
                         <p className="text-xs text-gray-500 mt-0.5 line-clamp-1">
                           {loan.keperluan}

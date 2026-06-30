@@ -5,6 +5,7 @@
 
 import { User, Peminjaman, Barang } from '../types';
 import { getPeminjaman, getBarang } from '../data/db';
+import { fmtTgl } from '../utils';
 import { ClipboardList, AlertTriangle, ChevronRight } from 'lucide-react';
 import { useState } from 'react';
 
@@ -107,7 +108,7 @@ export default function PeminjamanSaya({ currentUser, onSelectPeminjaman, onNavi
                 <div className="space-y-0.5">
                   <p className="text-sm font-medium text-gray-800 leading-snug line-clamp-1">{loan.keperluan}</p>
                   <p className="text-xs text-gray-400">
-                    Jadwal: <span className="font-medium text-gray-600">{loan.tgl_mulai}</span> s/d <span className="font-medium text-gray-600">{loan.tgl_kembali_rencana}</span>
+                    Jadwal: <span className="font-medium text-gray-600">{fmtTgl(loan.tgl_mulai)}</span> s/d <span className="font-medium text-gray-600">{fmtTgl(loan.tgl_kembali_rencana)}</span>
                   </p>
                 </div>
 

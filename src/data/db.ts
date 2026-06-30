@@ -5,12 +5,31 @@
 
 import { User, Kategori, Barang, Peminjaman, DetailPeminjaman } from '../types';
 import { initializeDatabase } from './seedData';
+import { apiBootstrap, apiPut } from './api';
 
-// Ensure seed data is populated
+// Seed localStorage sebagai fallback (dipakai jika backend tidak terjangkau).
 initializeDatabase();
 
-// Evaluasi keterlambatan saat aplikasi dimuat
-markOverdueLoans();
+/**
+ * Tarik seluruh data dari backend MySQL ke localStorage (mirror lokal).
+ * Dipanggil sekali saat aplikasi dimuat (lihat main.tsx) SEBELUM render,
+ * sehingga semua getX() membaca data terbaru dari backend. Bila backend
+ * tidak terjangkau, data localStorage (fallback/seed) tetap dipakai.
+ */
+export async function hydrateFromBackend(): Promise<boolean> {
+  try {
+    const data = await apiBootstrap();
+    if (Array.isArray(data.users)) localStorage.setItem('sipinjam_users', JSON.stringify(data.users));
+    if (Array.isArray(data.kategori)) localStorage.setItem('sipinjam_kategori', JSON.stringify(data.kategori));
+    if (Array.isArray(data.barang)) localStorage.setItem('sipinjam_barang', JSON.stringify(data.barang));
+    if (Array.isArray(data.peminjaman)) localStorage.setItem('sipinjam_peminjaman', JSON.stringify(data.peminjaman));
+    if (data.pengaturan) localStorage.setItem('sipinjam_pengaturan_surat', JSON.stringify(data.pengaturan));
+    return true;
+  } catch (err) {
+    console.warn('[SIPINJAM] Backend tidak terjangkau — memakai data lokal (localStorage).', err);
+    return false;
+  }
+}
 
 export function getUsers(): User[] {
   const data = localStorage.getItem('sipinjam_users');
@@ -19,6 +38,7 @@ export function getUsers(): User[] {
 
 export function saveUsers(users: User[]) {
   localStorage.setItem('sipinjam_users', JSON.stringify(users));
+  apiPut('/api/users', users);
 }
 
 export function getKategori(): Kategori[] {
@@ -28,6 +48,7 @@ export function getKategori(): Kategori[] {
 
 export function saveKategori(kategori: Kategori[]) {
   localStorage.setItem('sipinjam_kategori', JSON.stringify(kategori));
+  apiPut('/api/kategori', kategori);
 }
 
 export function getBarang(): Barang[] {
@@ -37,6 +58,7 @@ export function getBarang(): Barang[] {
 
 export function saveBarang(barang: Barang[]) {
   localStorage.setItem('sipinjam_barang', JSON.stringify(barang));
+  apiPut('/api/barang', barang);
 }
 
 export function getPeminjaman(): Peminjaman[] {
@@ -46,6 +68,7 @@ export function getPeminjaman(): Peminjaman[] {
 
 export function savePeminjaman(peminjaman: Peminjaman[]) {
   localStorage.setItem('sipinjam_peminjaman', JSON.stringify(peminjaman));
+  apiPut('/api/peminjaman', peminjaman);
 }
 
 /**
@@ -93,6 +116,7 @@ export function getPengaturanSurat(): PengaturanSurat {
 
 export function savePengaturanSurat(pengaturan: PengaturanSurat) {
   localStorage.setItem('sipinjam_pengaturan_surat', JSON.stringify(pengaturan));
+  apiPut('/api/pengaturan-surat', pengaturan);
 }
 
 export function getDaftarPinjam(): DetailPeminjaman[] {

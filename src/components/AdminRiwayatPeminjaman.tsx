@@ -7,6 +7,7 @@ import { useMemo, useState } from 'react';
 import { History, Search, FileSpreadsheet, ClipboardList, X, User, CalendarDays, Boxes, ChevronRight } from 'lucide-react';
 import { getBarang, getPeminjaman } from '../data/db';
 import { Peminjaman } from '../types';
+import { fmtTgl } from '../utils';
 
 export default function AdminRiwayatPeminjaman() {
   const allLoans = getPeminjaman();
@@ -111,13 +112,6 @@ export default function AdminRiwayatPeminjaman() {
       })
       .join(', ');
 
-  const formatTanggal = (iso?: string) => {
-    if (!iso) return '-';
-    const parts = iso.split('-');
-    if (parts.length !== 3) return iso;
-    return `${parts[2]}/${parts[1]}/${parts[0]}`;
-  };
-
   const handleExportExcel = () => {
     const rows: (string | number)[][] = [
       [
@@ -135,13 +129,13 @@ export default function AdminRiwayatPeminjaman() {
       ...historyLoans.map((loan, index) => [
         index + 1,
         loan.kode,
-        formatTanggal(loan.tgl_pengajuan),
+        fmtTgl(loan.tgl_pengajuan),
         loan.peminjam_nama,
         loan.peminjam_kelas,
         getItemSummary(loan),
-        formatTanggal(loan.tgl_mulai),
-        formatTanggal(loan.tgl_kembali_rencana),
-        formatTanggal(loan.tgl_kembali_aktual),
+        fmtTgl(loan.tgl_mulai),
+        fmtTgl(loan.tgl_kembali_rencana),
+        fmtTgl(loan.tgl_kembali_aktual),
         getStatusLabel(loan.status),
       ]),
     ];
@@ -232,7 +226,7 @@ export default function AdminRiwayatPeminjaman() {
                     onClick={() => setSelectedLoan(loan)}
                     className="hover:bg-gray-50 cursor-pointer transition-colors"
                   >
-                    <td className="px-3 py-3 whitespace-nowrap text-gray-700">{loan.tgl_pengajuan}</td>
+                    <td className="px-3 py-3 whitespace-nowrap text-gray-700">{fmtTgl(loan.tgl_pengajuan)}</td>
                     <td className="px-3 py-3 text-gray-700">
                       <div className="font-medium">{loan.peminjam_nama}</div>
                       <div className="text-xs text-gray-500">{loan.peminjam_kelas}</div>
@@ -338,19 +332,19 @@ export default function AdminRiwayatPeminjaman() {
                   <span className="text-[11px] text-gray-400 font-medium uppercase tracking-wide flex items-center gap-1">
                     <CalendarDays className="w-3 h-3" /> Pengajuan
                   </span>
-                  <span className="font-semibold text-gray-800 block mt-0.5 text-sm">{selectedLoan.tgl_pengajuan}</span>
+                  <span className="font-semibold text-gray-800 block mt-0.5 text-sm">{fmtTgl(selectedLoan.tgl_pengajuan)}</span>
                 </div>
                 <div className="p-2.5 border border-gray-100 rounded-lg bg-gray-50">
                   <span className="text-[11px] text-gray-400 block font-medium uppercase tracking-wide">Mulai Pinjam</span>
-                  <span className="font-semibold text-gray-800 block mt-0.5 text-sm">{selectedLoan.tgl_mulai}</span>
+                  <span className="font-semibold text-gray-800 block mt-0.5 text-sm">{fmtTgl(selectedLoan.tgl_mulai)}</span>
                 </div>
                 <div className="p-2.5 border border-gray-100 rounded-lg bg-gray-50">
                   <span className="text-[11px] text-gray-400 block font-medium uppercase tracking-wide">Rencana Kembali</span>
-                  <span className="font-semibold text-gray-800 block mt-0.5 text-sm">{selectedLoan.tgl_kembali_rencana}</span>
+                  <span className="font-semibold text-gray-800 block mt-0.5 text-sm">{fmtTgl(selectedLoan.tgl_kembali_rencana)}</span>
                 </div>
                 <div className="p-2.5 border border-gray-100 rounded-lg bg-gray-50">
                   <span className="text-[11px] text-gray-400 block font-medium uppercase tracking-wide">Kembali Aktual</span>
-                  <span className="font-semibold text-gray-800 block mt-0.5 text-sm">{selectedLoan.tgl_kembali_aktual || '—'}</span>
+                  <span className="font-semibold text-gray-800 block mt-0.5 text-sm">{fmtTgl(selectedLoan.tgl_kembali_aktual)}</span>
                 </div>
               </div>
 
