@@ -107,7 +107,7 @@ export default function FormPeminjaman({
     if (!tglKembali) return "Tanggal pengembalian rencana wajib diisi.";
     if (!keperluan.trim()) return "Harap isi deskripsi keperluan kegiatan peminjaman.";
     if (!suratNamaKegiatan.trim()) return "Harap isi nama kegiatan untuk surat.";
-    if (!suratHari.trim()) return "Harap pilih hari pelaksanaan.";
+    if (!suratTanggal) return "Harap pilih tanggal pelaksanaan.";
     if (!suratTanggal) return "Harap isi tanggal surat.";
     if (!suratWaktuMulai) return "Harap isi waktu mulai kegiatan.";
     if (!suratWaktuSelesai) return "Harap isi waktu selesai kegiatan.";
@@ -443,7 +443,6 @@ export default function FormPeminjaman({
 
               <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
                 <div>
-<<<<<<< HEAD
                   <label className={labelClass}>Hari & Tanggal Pelaksanaan</label>
                   <input
                     type="date"
@@ -456,27 +455,6 @@ export default function FormPeminjaman({
                       {derivedHari}, {fmtTgl(suratTanggal)}
                     </p>
                   )}
-=======
-                  <label className={labelClass}>Hari Pelaksanaan</label>
-                  <select
-                    value={suratHari}
-                    onChange={(e) => setSuratHari(e.target.value)}
-                    className={selectClass}
-                    required
-                  >
-                    <option>Senin</option>
-                    <option>Selasa</option>
-                    <option>Rabu</option>
-                    <option>Kamis</option>
-                    <option>Jumat</option>
-                    <option>Sabtu</option>
-                    <option>Minggu</option>
-                  </select>
-                </div>
-                <div>
-                  <label className={labelClass}>Tanggal Surat</label>
-                  <input type="date" value={suratTanggal} onChange={(e) => setSuratTanggal(e.target.value)} className={inputClass} required />
->>>>>>> 8f92aeb69805ba15908b6e2ac7d1a8ad5d88c5ab
                 </div>
                 <div>
                   <label className={labelClass}>Waktu Mulai</label>

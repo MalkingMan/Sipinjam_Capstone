@@ -7,6 +7,7 @@ import { useState, useEffect } from "react";
 import { User, Peminjaman, DetailPeminjaman } from "./types";
 import { getCurrentUser, setCurrentUser, getPeminjaman, getDaftarPinjam, saveDaftarPinjam, clearDaftarPinjam } from "./data/db";
 import LoginView from "./components/LoginView";
+import RegisterView from "./components/RegisterView";
 import Navbar from "./components/Navbar";
 import PeminjamDashboard from "./components/PeminjamDashboard";
 import KatalogBarang from "./components/KatalogBarang";
@@ -16,6 +17,7 @@ import AdminDashboard from "./components/AdminDashboard";
 import AdminInventaris from "./components/AdminInventaris";
 import AdminPengaturanSurat from "./components/AdminPengaturanSurat";
 import AdminRiwayatPeminjaman from "./components/AdminRiwayatPeminjaman";
+import EditAkunView from "./components/EditAkunView";
 import CetakTemplateKosongView from "./components/CetakTemplateKosongView";
 import CetakSuratView from "./components/CetakSuratView";
 import DaftarPinjamSheet from "./components/DaftarPinjamSheet";
@@ -25,6 +27,8 @@ import { X, ClipboardList } from "lucide-react";
 export default function App() {
   const [currentUser, setUser] = useState<User | null>(getCurrentUser());
   const [activeTab, setActiveTab] = useState<string>("dashboard");
+  const [showRegister, setShowRegister] = useState(false);
+  const [registerSuccess, setRegisterSuccess] = useState(false);
   const [preSelectedBarangId, setPreSelectedBarangId] = useState<string | null>(null);
   const [selectedPJMDetail, setSelectedPJMDetail] = useState<Peminjaman | null>(null);
   const [refreshKey, setRefreshKey] = useState<number>(0);
@@ -71,6 +75,11 @@ export default function App() {
     setActiveTab("dashboard");
   };
 
+  const handleUserUpdate = (updated: User) => {
+    setCurrentUser(updated);
+    setUser(updated);
+  };
+
   const handleStartBorrow = (barangId: string) => {
     setPreSelectedBarangId(barangId);
     setActiveTab("form_peminjaman");
@@ -81,7 +90,15 @@ export default function App() {
   };
 
   if (!currentUser) {
-    return <LoginView onLoginSuccess={handleLogin} />;
+    if (showRegister) {
+      return (
+        <RegisterView
+          onBack={() => { setShowRegister(false); setRegisterSuccess(false); }}
+          onSuccess={() => { setShowRegister(false); setRegisterSuccess(true); }}
+        />
+      );
+    }
+    return <LoginView onLoginSuccess={handleLogin} onShowRegister={() => setShowRegister(true)} registerSuccess={registerSuccess} />;
   }
 
   const allBarang = getBarang();
@@ -208,6 +225,14 @@ export default function App() {
 
         {activeTab === "admin_riwayat" && currentUser.role === "admin" && (
           <AdminRiwayatPeminjaman />
+        )}
+
+        {activeTab === "profil_saya" && (
+          <EditAkunView
+            currentUser={currentUser}
+            onBack={() => setActiveTab("dashboard")}
+            onUserUpdate={handleUserUpdate}
+          />
         )}
       </main>
 

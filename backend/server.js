@@ -189,6 +189,71 @@ app.put('/api/pengaturan-surat', async (req, res) => {
   }
 });
 
+// ======================================================
+// UPDATE PROFIL — edit info & ganti password
+// ======================================================
+app.patch('/api/users/:id', async (req, res) => {
+  const { id } = req.params;
+  const { nama, email, kelas_jabatan, organisasi, password_lama, password_baru } = req.body;
+
+  try {
+    const [rows] = await pool.query('SELECT * FROM users WHERE id = ?', [id]);
+    if (rows.length === 0) return res.status(404).json({ error: 'Pengguna tidak ditemukan.' });
+    const user = rows[0];
+
+    if (password_baru !== undefined && password_baru !== '') {
+      if (!password_lama) return res.status(400).json({ error: 'Password lama wajib diisi untuk mengganti password.' });
+      if (user.password !== password_lama) return res.status(400).json({ error: 'Password lama salah.' });
+      if (password_baru.length < 6) return res.status(400).json({ error: 'Password baru minimal 6 karakter.' });
+
+      await pool.query(
+        'UPDATE users SET nama = ?, email = ?, kelas_jabatan = ?, organisasi = ?, password = ? WHERE id = ?',
+        [nama?.trim() || user.nama, email?.trim() || null, kelas_jabatan?.trim() || null, organisasi?.trim() || null, password_baru, id]
+      );
+    } else {
+      await pool.query(
+        'UPDATE users SET nama = ?, email = ?, kelas_jabatan = ?, organisasi = ? WHERE id = ?',
+        [nama?.trim() || user.nama, email?.trim() || null, kelas_jabatan?.trim() || null, organisasi?.trim() || null, id]
+      );
+    }
+
+    const [updated] = await pool.query('SELECT id, nis_nip, nama, email, role, kelas_jabatan, organisasi, password FROM users WHERE id = ?', [id]);
+    res.json({ success: true, user: updated[0] });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// ======================================================
+// REGISTER — pendaftaran akun peminjam baru (role: siswa)
+// ======================================================
+app.post('/api/register', async (req, res) => {
+  const { nis_nip, nama, email, kelas_jabatan, organisasi, password } = req.body;
+
+  if (!nis_nip || !nis_nip.trim()) return res.status(400).json({ error: 'NIS wajib diisi.' });
+  if (!nama || !nama.trim()) return res.status(400).json({ error: 'Nama lengkap wajib diisi.' });
+  if (!kelas_jabatan || !kelas_jabatan.trim()) return res.status(400).json({ error: 'Kelas wajib diisi.' });
+  if (!password || password.length < 6) return res.status(400).json({ error: 'Password minimal 6 karakter.' });
+
+  try {
+    const [existing] = await pool.query('SELECT id FROM users WHERE nis_nip = ?', [nis_nip.trim()]);
+    if (existing.length > 0) {
+      return res.status(409).json({ error: 'NIS sudah terdaftar. Silakan login.' });
+    }
+
+    const id = nis_nip.trim();
+    await pool.query(
+      'INSERT INTO users (id, nis_nip, nama, email, role, kelas_jabatan, organisasi, password) VALUES (?, ?, ?, ?, ?, ?, ?, ?)',
+      [id, nis_nip.trim(), nama.trim(), email?.trim() || null, 'siswa', kelas_jabatan.trim(), organisasi?.trim() || null, password]
+    );
+
+    const newUser = { id, nis_nip: nis_nip.trim(), nama: nama.trim(), email: email?.trim() || null, role: 'siswa', kelas_jabatan: kelas_jabatan.trim(), organisasi: organisasi?.trim() || null };
+    res.status(201).json({ success: true, user: newUser });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
 app.listen(PORT, () => {
   console.log(`SIPINJAM Backend Server berjalan di http://localhost:${PORT}`);
 });

@@ -4,12 +4,14 @@
  */
 
 import React, { useState } from 'react';
-import { ShieldCheck, Eye, EyeOff, User, Key, Info, ArrowRight } from 'lucide-react';
+import { ShieldCheck, Eye, EyeOff, User, Key, Info, ArrowRight, UserPlus, CheckCircle2 } from 'lucide-react';
 import { User as UserType } from '../types';
 import { getUsers } from '../data/db';
 
 interface LoginViewProps {
   onLoginSuccess: (user: UserType) => void;
+  onShowRegister: () => void;
+  registerSuccess?: boolean;
 }
 
 const DEMO_ACCOUNTS = [
@@ -18,7 +20,7 @@ const DEMO_ACCOUNTS = [
   { nis: '1978052402', nama: 'Pak Bagas Setyawan', role: 'Admin TU', detail: 'NIP 1978052402 · Tata Usaha Sarpras', badge: 'bg-violet-50 text-violet-700' },
 ];
 
-export default function LoginView({ onLoginSuccess }: LoginViewProps) {
+export default function LoginView({ onLoginSuccess, onShowRegister, registerSuccess }: LoginViewProps) {
   const [nisNip, setNisNip] = useState('');
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
@@ -94,6 +96,12 @@ export default function LoginView({ onLoginSuccess }: LoginViewProps) {
             <p className="text-xs text-gray-400 mb-5">Gunakan Nomor Induk dan kata sandi sekolah.</p>
 
             <form id="login-form" onSubmit={handleLogin} className="space-y-4">
+              {registerSuccess && (
+                <div className="p-3 bg-green-50 text-xs text-green-700 border border-green-200 rounded-lg flex items-start gap-2">
+                  <CheckCircle2 className="w-4 h-4 shrink-0 mt-0.5" />
+                  <span>Akun berhasil dibuat! Silakan masuk dengan NIS dan password Anda.</span>
+                </div>
+              )}
               {error && (
                 <div className="p-3 bg-red-50 text-xs text-red-700 border border-red-200 rounded-lg flex items-start gap-2 animate-fade-in">
                   <Info className="w-4 h-4 shrink-0 mt-0.5" />
@@ -177,6 +185,19 @@ export default function LoginView({ onLoginSuccess }: LoginViewProps) {
                 )}
               </button>
             </form>
+
+            {/* Register link */}
+            <div className="mt-4 pt-4 border-t border-gray-100 text-center">
+              <p className="text-xs text-gray-400 mb-2">Belum punya akun?</p>
+              <button
+                type="button"
+                onClick={onShowRegister}
+                className="inline-flex items-center gap-1.5 text-xs font-semibold text-slate-700 hover:text-slate-900 hover:underline transition cursor-pointer"
+              >
+                <UserPlus className="w-3.5 h-3.5" />
+                Daftar Akun Baru
+              </button>
+            </div>
 
             {/* Quick Login Section */}
             <div className="mt-6 pt-5 border-t border-gray-100">

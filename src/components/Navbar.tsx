@@ -4,7 +4,7 @@
  */
 
 import { User, UserRole } from '../types';
-import { ShieldCheck, LogOut, LayoutDashboard, Boxes, ClipboardList, Info, Database, ShoppingBag, History } from 'lucide-react';
+import { ShieldCheck, LogOut, LayoutDashboard, Boxes, ClipboardList, Info, Database, ShoppingBag, History, UserCog } from 'lucide-react';
 
 interface NavbarProps {
   currentUser: User;
@@ -112,6 +112,14 @@ export default function Navbar({ currentUser, activeTab, setActiveTab, onLogout,
                 {getRoleLabel(currentUser.role)}
               </span>
             </div>
+
+            <button
+              onClick={() => setActiveTab('profil_saya')}
+              className={`p-2 rounded-lg transition-colors cursor-pointer ${activeTab === 'profil_saya' ? 'bg-slate-100 text-slate-800' : 'text-gray-400 hover:bg-gray-100 hover:text-gray-700'}`}
+              title="Edit Profil"
+            >
+              <UserCog className="w-4 h-4" />
+            </button>
 
             <div className="h-7 w-px bg-gray-200 hidden sm:block"></div>
 

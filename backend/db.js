@@ -6,12 +6,15 @@ dotenv.config();
 const pool = mysql.createPool({
   host: process.env.DB_HOST || 'localhost',
   port: process.env.DB_PORT || 3306,
-  user: process.env.DB_USER || 'root', 
-  password: process.env.DB_PASSWORD || '', 
+  user: process.env.DB_USER || 'root',
+  password: process.env.DB_PASSWORD || '',
   database: process.env.DB_NAME || 'sipinjam',
   waitForConnections: true,
   connectionLimit: 10,
-  queueLimit: 0
+  queueLimit: 0,
+  // Kembalikan kolom DATE/DATETIME sebagai string 'YYYY-MM-DD' (bukan objek Date),
+  // agar sesuai dengan format yang dipakai frontend.
+  dateStrings: true,
 });
 
 export default pool;
