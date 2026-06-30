@@ -17,6 +17,7 @@ import {
   savePeminjaman,
   saveBarang,
 } from "../data/db";
+import { fmtTgl } from "../utils";
 import {
   ShoppingBag,
   Calendar,
@@ -64,8 +65,11 @@ export default function FormPeminjaman({
   const [generatedCode, setGeneratedCode] = useState("");
 
   const [suratNamaKegiatan, setSuratNamaKegiatan] = useState("");
-  const [suratHari, setSuratHari] = useState("Senin");
   const [suratTanggal, setSuratTanggal] = useState(todayStr);
+  const HARI_ID = ['Minggu','Senin','Selasa','Rabu','Kamis','Jumat','Sabtu'];
+  const derivedHari = suratTanggal
+    ? HARI_ID[new Date(suratTanggal + 'T12:00:00').getDay()]
+    : 'Senin';
   const [suratWaktuMulai, setSuratWaktuMulai] = useState("07:00");
   const [suratWaktuSelesai, setSuratWaktuSelesai] = useState("15:30");
   const [suratTempat, setSuratTempat] = useState("SMAN 1 Sentolo");
@@ -163,7 +167,7 @@ export default function FormPeminjaman({
       catatan_peminjam: catatan.trim(),
       items: daftarPinjam,
       surat_nama_kegiatan: suratNamaKegiatan.trim(),
-      surat_hari: suratHari,
+      surat_hari: derivedHari,
       surat_tanggal_kegiatan: suratTanggal,
       surat_waktu_mulai: suratWaktuMulai,
       surat_waktu_selesai: suratWaktuSelesai,
@@ -399,26 +403,20 @@ export default function FormPeminjaman({
                 </div>
               </div>
 
-              <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
                 <div>
-                  <label className={labelClass}>Hari Pelaksanaan</label>
-                  <select
-                    value={suratHari}
-                    onChange={(e) => setSuratHari(e.target.value)}
-                    className={selectClass}
-                  >
-                    <option>Senin</option>
-                    <option>Selasa</option>
-                    <option>Rabu</option>
-                    <option>Kamis</option>
-                    <option>Jumat</option>
-                    <option>Sabtu</option>
-                    <option>Minggu</option>
-                  </select>
-                </div>
-                <div>
-                  <label className={labelClass}>Tanggal Surat</label>
-                  <input type="date" value={suratTanggal} onChange={(e) => setSuratTanggal(e.target.value)} className={inputClass} />
+                  <label className={labelClass}>Hari & Tanggal Pelaksanaan</label>
+                  <input
+                    type="date"
+                    value={suratTanggal}
+                    onChange={(e) => setSuratTanggal(e.target.value)}
+                    className={inputClass}
+                  />
+                  {suratTanggal && (
+                    <p className="text-xs text-[#334155] font-medium mt-1">
+                      {derivedHari}, {fmtTgl(suratTanggal)}
+                    </p>
+                  )}
                 </div>
                 <div>
                   <label className={labelClass}>Waktu Mulai</label>
